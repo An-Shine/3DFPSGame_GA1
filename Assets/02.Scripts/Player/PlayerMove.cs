@@ -5,9 +5,11 @@ public class PlayerMove : MonoBehaviour
     private const float Gravity = -20f;
     private const int MaxJumps = 2;
     private const float MaxStamina = 100f;
+
     private float _yVeclocity = 0f; // 위아래 속도, 매 프레임마다 중력 가속도가 붙는다
     private int _jumpCount = 0;
     private float _stamina = 0f;
+
     [Header("스탯")]
     [SerializeField] private float _moveSpeed = 7f;
     [SerializeField] private float _sprintSpeed = 12f;
@@ -15,8 +17,10 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float _staminaRecovery = 15f;
     [SerializeField] private float _sprintCost = 20f;
     [SerializeField] private float _jumpCost = 20f;
+
     [Header("컴포넌트")]
     [SerializeField] private CharacterController _characterController;
+
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
