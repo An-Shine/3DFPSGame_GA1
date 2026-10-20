@@ -1,0 +1,40 @@
+using UnityEngine;
+
+// 마우스 왼쪽버튼을 누르면 바라보는 방향으로 총알을 발사하고싶다
+public class PlayerGunFire : MonoBehaviour
+{
+    [SerializeField] private ParticleSystem _hitEffectPrefab;
+    private float _range = 100f;
+    private float _damage = 10f;
+
+    private void Update()
+    {
+        // 1. 마우스 왼쪽버튼 입력받기
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Shoot();
+        }
+    }
+
+    private void Shoot()
+    {
+        // 2. 레이(광선) 생성, 발사될 위치와 진행방향 설정하기
+        Transform cameraTransform = Camera.main.transform;
+        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+
+        // 3. 레이가 부딪힌 대상의 정보를 저장하기
+        RaycastHit hitInfo = new RaycastHit();
+
+        // 4. 레이를 발사하고, 만일 부딪힌 물체가 있다면 이펙트 표시하기
+        bool isHit = Physics.Raycast(ray, out hitInfo, _range);
+
+        if (isHit)
+        {
+            // Debug.Log($"{hitInfo.collider.name}이 총알을 맞았다. 데미지: {_damage}");
+            ParticleSystem effect = Instantiate(_hitEffectPrefab);
+            effect.transform.position = hitInfo.point; // 맞은 자리
+            effect.transform.forward = hitInfo.normal; // 수직 위치로 회전
+            effect.Play();
+        }
+    }
+}
