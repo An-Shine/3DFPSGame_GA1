@@ -6,6 +6,7 @@ public class PlayerMove : MonoBehaviour
     private float _yVeclocity = 0f; // 위아래 속도, 매 프레임마다 중력 가속도가 붙는다
 
     [SerializeField] private float _moveSpeed = 7f;
+    [SerializeField] private float _sprintSpeed = 12f;
     [SerializeField] private float _jumpPower = 7f;
     [SerializeField] private CharacterController _characterController;
 
@@ -36,7 +37,7 @@ public class PlayerMove : MonoBehaviour
 
         else
         {
-            _yVeclocity = 0f;   // 땅에 서있으면 중력 초기화
+            _yVeclocity = -1f;   // 땅에 서있으면 중력 초기화
         }
         // 4. 점프키를 누르면 && 땅이라면 점프를한다
         if (Input.GetButtonDown("Jump") && _characterController.isGrounded)  // 중재자 패턴 : 유니티가 미리 만들어둔 기능에 연결해서 쓰는 방식
@@ -45,12 +46,9 @@ public class PlayerMove : MonoBehaviour
         }
 
         // 5. 속도를 구한다
-        var velocity = direction * _moveSpeed;
+        float speed = Input.GetButton("Sprint") ? _sprintSpeed : _moveSpeed;
+        var velocity = direction * speed;
         velocity.y = _yVeclocity;
         _characterController.Move(velocity * Time.deltaTime);
-
-        // 새 위치 = 현재 위치 + 방향 * 속도 * 시간
-        // transform.position += direction * MoveSpeed * Time.deltaTime;
-        _characterController.Move(direction * _moveSpeed * Time.deltaTime);
     }
 }
