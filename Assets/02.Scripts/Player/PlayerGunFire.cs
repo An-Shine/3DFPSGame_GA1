@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 // 마우스 왼쪽버튼을 누르면 바라보는 방향으로 총알을 발사하고싶다
 public class PlayerGunFire : MonoBehaviour
@@ -11,9 +12,11 @@ public class PlayerGunFire : MonoBehaviour
     [SerializeField] private float _damage = 10f;
     [SerializeField] private float _fireInterval = 0.1f;
     [SerializeField] private int _bulletAmmo = 30;
+    [SerializeField] private float _reloadTime = 1.5f;
 
     private int _remainingBulletAmmo;
     private float _fireTimer = 0f;
+    private Coroutine _reloadCoroutine;
 
     private void Awake()
     {
@@ -27,10 +30,14 @@ public class PlayerGunFire : MonoBehaviour
         // 1. 마우스 왼쪽버튼 입력받기
         if (Input.GetButton("Fire1") && _fireTimer <= 0f && _remainingBulletAmmo > 0)
         {
+            CancelReload();
             _fireTimer = _fireInterval;
             Shoot();
         }
-        ReLoad();
+        if (Input.GetKeyDown(KeyCode.R) && _reloadCoroutine == null && _remainingBulletAmmo < _bulletAmmo)
+        {
+            _reloadCoroutine = StartCoroutine(Reloading_Coroutine());
+        }
     }
 
     private void Shoot()
@@ -58,17 +65,26 @@ public class PlayerGunFire : MonoBehaviour
         }
     }
 
-    private void ReLoad()
-    {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            _remainingBulletAmmo = _bulletAmmo;
-            ShowBulletCount();
-        }
-    }
-
     private void ShowBulletCount()
     {
         _bulletCountUI.text = $"{_remainingBulletAmmo} / {_bulletAmmo}";
+    }
+
+    private IEnumerator Reloading_Coroutine()
+    {
+        yield return new WaitForSeconds(_reloadTime);
+        _remainingBulletAmmo = _bulletAmmo;
+        _reloadCoroutine = null;
+        ShowBulletCount();
+    }
+
+    private void CancelReload()
+    {
+        if (_reloadCoroutine == null)
+        {
+            return;
+        }
+        StopCoroutine(_reloadCoroutine);
+        _reloadCoroutine = null;
     }
 }
