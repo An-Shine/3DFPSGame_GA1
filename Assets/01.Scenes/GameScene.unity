@@ -156,6 +156,16 @@ MonoBehaviour:
   _attackRange: 1.5
   _attackInterval: 1.2
   _moveSpeed: 5
+  _idleDuration: 2
+  _patrolDistance: 4
+  _patrolWaitDuration: 1
+  _arrivalDistance: 0.2
+  _groundMask:
+    serializedVersion: 2
+    m_Bits: 256
+  _obstacleMask:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!143 &45283412
 CharacterController:
   m_ObjectHideFlags: 0
@@ -265,7 +275,7 @@ GameObject:
   - component: {fileID: 138768371}
   - component: {fileID: 138768370}
   - component: {fileID: 138768369}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Stair2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -981,7 +991,7 @@ GameObject:
   - component: {fileID: 542271388}
   - component: {fileID: 542271387}
   - component: {fileID: 542271386}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1783,7 +1793,7 @@ GameObject:
   - component: {fileID: 1725904037}
   - component: {fileID: 1725904036}
   - component: {fileID: 1725904035}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Stair1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1895,7 +1905,7 @@ GameObject:
   - component: {fileID: 1800913896}
   - component: {fileID: 1800913895}
   - component: {fileID: 1800913894}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Stair3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2117,7 +2127,7 @@ GameObject:
   - component: {fileID: 1963163388}
   - component: {fileID: 1963163387}
   - component: {fileID: 1963163386}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Ramp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2229,7 +2239,7 @@ GameObject:
   - component: {fileID: 1989758271}
   - component: {fileID: 1989758270}
   - component: {fileID: 1989758269}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2341,7 +2351,7 @@ GameObject:
   - component: {fileID: 2102240118}
   - component: {fileID: 2102240117}
   - component: {fileID: 2102240116}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: HighStep
   m_TagString: Untagged
   m_Icon: {fileID: 0}
