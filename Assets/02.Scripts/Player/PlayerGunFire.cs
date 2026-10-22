@@ -23,7 +23,6 @@ public class PlayerGunFire : MonoBehaviour
         _remainingBulletAmmo = _bulletAmmo;
         ShowBulletCount();
     }
-
     private void Update()
     {
         _fireTimer -= Time.deltaTime;
@@ -62,6 +61,11 @@ public class PlayerGunFire : MonoBehaviour
             effect.transform.position = hitInfo.point; // 맞은 자리
             effect.transform.forward = hitInfo.normal; // 수직 위치로 회전
             effect.Play();
+
+            if (hitInfo.collider.TryGetComponent(out Zombie zombie))
+            {
+                zombie.TakeDamage(_damage);
+            }
         }
     }
 
