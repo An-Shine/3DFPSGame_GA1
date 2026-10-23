@@ -21,6 +21,9 @@ public class PlayerMove : MonoBehaviour
     [Header("컴포넌트")]
     [SerializeField] private CharacterController _characterController;
 
+    public float Stamina => _stamina;
+    public float MaxStaminaValue => MaxStamina;
+
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();

@@ -28,7 +28,8 @@ public class Zombie : MonoBehaviour, IDamageable
     [SerializeField] private float _attackRange = 1.5f;
     [SerializeField] private float _attackInterval = 1.2f;
     [SerializeField] private float _moveSpeed = 5f;
-    [SerializeField] private float _health = 30f;
+    [SerializeField] private float _maxHealth = 30f;
+    [SerializeField] private float _health;
     [SerializeField] private float _damage = 10f;
 
     [Header("이펙트")]
@@ -59,6 +60,9 @@ public class Zombie : MonoBehaviour, IDamageable
     private float _attackTimer;
     private float _progressTimer;
 
+    public float Health => _health;
+    public float MaxHealth => _maxHealth;
+
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -66,6 +70,7 @@ public class Zombie : MonoBehaviour, IDamageable
 
     private void Start()
     {
+        _health = _maxHealth;
         ResetForSpawn();
     }
 
