@@ -40,7 +40,7 @@ Texture2D:
   m_ColorSpace: 1
   m_PlatformBlob: 
   image data: 1
-  _typelessdata: cd
+  _typelessdata: 00
   m_StreamData:
     serializedVersion: 2
     offset: 0
@@ -172,24 +172,24 @@ MonoBehaviour:
     m_FaceIndex: 0
     m_FamilyName: LevelUp
     m_StyleName: Regular
-    m_PointSize: 90
+    m_PointSize: 34
     m_Scale: 1
     m_UnitsPerEM: 1000
-    m_LineHeight: 109.8
-    m_AscentLine: 87.3
-    m_CapLine: 68
-    m_MeanLine: 49
+    m_LineHeight: 41.48
+    m_AscentLine: 32.98
+    m_CapLine: 26
+    m_MeanLine: 19
     m_Baseline: 0
-    m_DescentLine: -22.5
-    m_SuperscriptOffset: 87.3
+    m_DescentLine: -8.5
+    m_SuperscriptOffset: 32.98
     m_SuperscriptSize: 0.5
-    m_SubscriptOffset: -22.5
+    m_SubscriptOffset: -8.5
     m_SubscriptSize: 0.5
-    m_UnderlineOffset: -29.43
-    m_UnderlineThickness: 12.51
-    m_StrikethroughOffset: 19.6
-    m_StrikethroughThickness: 12.51
-    m_TabWidth: 22
+    m_UnderlineOffset: -11.118
+    m_UnderlineThickness: 4.7260003
+    m_StrikethroughOffset: 7.6
+    m_StrikethroughThickness: 4.7260003
+    m_TabWidth: 8
   m_Material: {fileID: -4105424729204359854}
   m_SourceFontFileGUID: 036749e3d5c482842984275d66ebd79a
   m_CreationSettings:
@@ -197,7 +197,7 @@ MonoBehaviour:
     sourceFontFileGUID: 036749e3d5c482842984275d66ebd79a
     faceIndex: 0
     pointSizeSamplingMode: 0
-    pointSize: 90
+    pointSize: 34
     padding: 9
     paddingMode: 2
     packingMode: 0

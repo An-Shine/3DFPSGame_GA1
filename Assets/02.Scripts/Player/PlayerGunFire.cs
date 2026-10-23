@@ -25,6 +25,7 @@ public class PlayerGunFire : MonoBehaviour
     }
     private void Update()
     {
+        if (GameManager.Instance.State != GameState.Playing) return;
         _fireTimer -= Time.deltaTime;
         // 1. 마우스 왼쪽버튼 입력받기
         if (Input.GetButton("Fire1") && _fireTimer <= 0f && _remainingBulletAmmo > 0)

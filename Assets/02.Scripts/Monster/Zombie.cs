@@ -30,7 +30,7 @@ public class Zombie : MonoBehaviour, IDamageable
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _maxHealth = 30f;
     [SerializeField] private float _health;
-    [SerializeField] private float _damage = 10f;
+    [SerializeField] private float _attackDamage = 10f;
 
     [Header("이펙트")]
     [SerializeField] private GameObject _bloodSprayPrefab;
@@ -88,6 +88,8 @@ public class Zombie : MonoBehaviour, IDamageable
 
     private void Update()
     {
+        if (GameManager.Instance.State != GameState.Playing) return;
+
         if (_state == ZombieState.Death)
         {
             return;
@@ -209,7 +211,15 @@ public class Zombie : MonoBehaviour, IDamageable
         _attackTimer += Time.deltaTime;
         if (_attackTimer >= _attackInterval)
         {
-            // TODO: 플레이어에게 _damage만큼 실제 피해 전달
+            DamageInfo info = new DamageInfo()
+            {
+                Value = _attackDamage,
+                HitPoint = _player.transform.position,
+                HitNormal = (transform.position - _player.transform.position).normalized,
+            };
+
+            _player.GetComponent<IDamageable>().TakeDamage(info);
+
             Debug.Log("플레이어를 공격했습니다");
             _attackTimer = 0f;
         }

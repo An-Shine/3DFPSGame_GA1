@@ -515,7 +515,7 @@ MonoBehaviour:
   _moveSpeed: 5
   _maxHealth: 30
   _health: 30
-  _damage: 10
+  _attackDamage: 10
   _bloodSprayPrefab: {fileID: 1000013355911406, guid: d32aa916f50cac94db11e6f19821a58f, type: 3}
   _idleDuration: 2
   _patrolDistance: 4
@@ -540,3 +540,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieHealthBar
   _slider: {fileID: 1264202847065263333}
+  _healthBarCanvas: {fileID: 4488264981699623336}

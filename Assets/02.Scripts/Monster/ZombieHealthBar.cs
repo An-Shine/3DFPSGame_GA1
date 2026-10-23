@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class ZombieHealthBar : MonoBehaviour
 {
     [SerializeField] private Slider _slider;
+    [SerializeField] private Transform _healthBarCanvas;
 
     private Zombie _zombie;
 
@@ -17,6 +18,6 @@ public class ZombieHealthBar : MonoBehaviour
         _slider.value = _zombie.Health / _zombie.MaxHealth;
 
         // 빌보드 : 체력바가 카메라를 쳐다보게한다
-        transform.forward = Camera.main.transform.forward;
+        _healthBarCanvas.forward = Camera.main.transform.forward;
     }
 }

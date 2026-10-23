@@ -29,6 +29,7 @@ public class PlayerBombFire : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.State != GameState.Playing) return;
         if (Input.GetButtonDown("Fire2") && _bombCount > 0)
         {
             _chargeTime = 0f;

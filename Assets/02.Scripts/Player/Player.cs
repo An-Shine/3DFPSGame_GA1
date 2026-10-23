@@ -1,0 +1,32 @@
+using UnityEngine;
+
+public class Player : MonoBehaviour, IDamageable
+{
+    [Header("스탯")]
+    [SerializeField] private float _maxHealth = 100f;
+    private float _health;
+
+    [SerializeField] private UI_HitEffect _uiHitEffect;
+
+    public float MaxHealth => _maxHealth;
+    public float Health => _health;
+
+    private void Start()
+    {
+        _health = _maxHealth;
+    }
+
+    public void TakeDamage(DamageInfo damageInfo)
+    {
+        _health -= damageInfo.Value;
+
+        _uiHitEffect.Fade(0.4f);
+
+        Debug.Log($"플레이어가 맞았다! 데미지 {damageInfo.Value}, 남은 체력 : {_health}");
+        if (_health <= 0)
+        {
+            Debug.Log("플레이어가 쓰러졌다");
+            GameManager.Instance.GameOver();
+        }
+    }
+}
