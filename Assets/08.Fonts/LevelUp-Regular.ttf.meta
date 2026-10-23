@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 31011af23ee9a2c4e93ffe61af17ea92
+guid: 036749e3d5c482842984275d66ebd79a
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - BusanDandiMyeongjo
+  - LevelUp
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
