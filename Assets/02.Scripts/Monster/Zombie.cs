@@ -20,7 +20,7 @@ public enum ZombieState
 // 좀비가 가질 수 있는 상태
 
 [RequireComponent(typeof(CharacterController))]
-public class Zombie : MonoBehaviour
+public class Zombie : MonoBehaviour, IDamageable
 {
     [Header("스탯")]
     [SerializeField] private float _detectionDistance = 8f;
@@ -31,6 +31,9 @@ public class Zombie : MonoBehaviour
     [SerializeField] private float _health = 30f;
     [SerializeField] private float _damage = 10f;
 
+    [Header("이펙트")]
+    [SerializeField] private GameObject _bloodSprayPrefab;
+
     [Header("순찰")]
     [SerializeField, Min(0f)] private float _idleDuration = 2f;
     [SerializeField, Min(0.5f)] private float _patrolDistance = 4f;
@@ -39,7 +42,7 @@ public class Zombie : MonoBehaviour
 
     [Header("순찰 지점 검사")]
     [SerializeField] private LayerMask _groundMask = 1 << 8;
-    [SerializeField] private LayerMask _obstacleMask = 1 << 9;
+    [SerializeField] private LayerMask _obstacleMask = (1 << 9) | (1 << 10) | (1 << 12);
 
     private CharacterController _controller;
     private GameObject _player;
@@ -66,7 +69,7 @@ public class Zombie : MonoBehaviour
         ResetForSpawn();
     }
 
-    // 랜덤 스폰이나 풀 재사용 시에도 위치를 옮긴 다음 호출한다.
+    // 랜덤 스폰이나 풀 재사용 시에도 위치를 옮긴 다음 호출
     public void ResetForSpawn()
     {
         StopAllCoroutines();
@@ -105,13 +108,13 @@ public class Zombie : MonoBehaviour
                 break;
         }
 
-        // 대기·공격·피격 중에도 중력을 적용하고 실제 이동은 한 번만 처리한다.
+        // 대기·공격·피격 중에도 중력을 적용하고 실제 이동은 한 번만 처리
         _controller.SimpleMove(_moveDirection * _moveSpeed);
     }
 
     private void Idle()
     {
-        // 순찰 시작보다 플레이어 발견을 우선한다.
+        // 순찰 시작보다 플레이어 발견을 우선으로함
         if (GetPlayerDistance() <= _detectionDistance)
         {
             ChangeState(ZombieState.Trace);
@@ -124,7 +127,7 @@ public class Zombie : MonoBehaviour
             return;
         }
 
-        // 지점을 못 찾으면 Idle을 유지하고 2초 뒤 다시 시도한다.
+        // 지점을 못 찾으면 Idle을 유지하고 2초 뒤 다시 시도
         _idleTimer = 0f;
         if (TrySetPatrolPoints())
         {
@@ -142,7 +145,7 @@ public class Zombie : MonoBehaviour
 
         if (GetHorizontalDistance(transform.position, _patrolTarget) > _arrivalDistance)
         {
-            // 새 장애물이 생겼으면 Idle로 돌아가 다른 구간을 찾는다.
+            // 새 장애물이 생겼으면 Idle로 돌아가 다른 구간을 탐색
             if (!IsPatrolPathClear(transform.position, _patrolTarget))
             {
                 ChangeState(ZombieState.Idle);
@@ -154,7 +157,7 @@ public class Zombie : MonoBehaviour
             return;
         }
 
-        // 도착 후 1초는 Patrol 상태로 기다린다. 이때 막힘 검사는 중단한다.
+        // 도착 후 1초는 Patrol 상태로 기다린다. 이때 막힘 검사는 중단
         _progressTimer = 0f;
         _progressPosition = transform.position;
         _patrolWaitTimer += Time.deltaTime;
@@ -228,7 +231,7 @@ public class Zombie : MonoBehaviour
         }
 
         transform.forward = direction.normalized;
-        // 목적지 직전에는 이동량을 줄여 지나치지 않게 한다.
+        // 목적지 직전에는 이동량을 줄여 지나치지 않게함
         float step = _moveSpeed * Time.deltaTime;
         float ratio = step > 0f ? Mathf.Clamp01(direction.magnitude / step) : 0f;
         _moveDirection = direction.normalized * ratio;
@@ -251,7 +254,7 @@ public class Zombie : MonoBehaviour
     private bool TrySetPatrolPoints()
     {
         _patrolPointA = transform.position;
-        // 후보 선택은 최대 10번만 시도한다.
+        // 후보 선택은 최대 10번만 시도
         for (int i = 0; i < 10; i++)
         {
             float angle = Random.Range(0f, 360f);
@@ -272,7 +275,7 @@ public class Zombie : MonoBehaviour
 
     private bool IsPatrolPathClear(Vector3 from, Vector3 to)
     {
-        // Scale (1, 1, 1)인 좀비와 높이 차이가 작은 바닥을 기준으로 검사한다.
+        // Scale (1, 1, 1)인 좀비와 높이 차이가 작은 바닥을 기준으로 검사
         Vector3 direction = to - from;
         direction.y = 0f;
         float distance = direction.magnitude;
@@ -282,7 +285,7 @@ public class Zombie : MonoBehaviour
         Vector3 bottom = center - Vector3.up * offset;
         Vector3 top = center + Vector3.up * offset;
 
-        // 시작점의 겹침과 몸이 지나갈 공간을 각각 확인한다.
+        // 시작점의 겹침과 몸이 지나갈 공간을 각각 확인
         if (Physics.CheckCapsule(bottom, top, radius, _obstacleMask, QueryTriggerInteraction.Ignore))
         {
             return false;
@@ -294,7 +297,7 @@ public class Zombie : MonoBehaviour
             return false;
         }
 
-        // 바닥을 0.5m 이하 간격으로 확인한다. 정밀한 낭떠러지 탐색은 아니다.
+        // 바닥을 0.5m 이하 간격으로 확인
         int steps = Mathf.Max(1, Mathf.CeilToInt(distance / 0.5f));
         float feetOffset = _controller.center.y - _controller.height * 0.5f;
         for (int i = 0; i <= steps; i++)
@@ -313,7 +316,7 @@ public class Zombie : MonoBehaviour
 
     private void CheckPatrolProgress()
     {
-        // 다른 캐릭터 등에 막혀 실제로 전진하지 못한 경우도 대기로 돌린다.
+        // 다른 캐릭터 등에 막혀 실제로 전진하지 못한 경우도 대기로 전환
         _progressTimer += Time.deltaTime;
         if (_progressTimer < 1f)
         {
@@ -352,23 +355,28 @@ public class Zombie : MonoBehaviour
         _moveDirection = Vector3.zero;
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(DamageInfo damageInfo)
     {
         if (_state == ZombieState.Death)
         {
             return;
         }
 
-        _currentHealth -= Mathf.Max(0f, damage);
-        // 연속 피격 시 이전의 Trace 복귀 예약을 취소한다.
+        _currentHealth -= damageInfo.Value;
+        // 연속 피격 시 이전의 Trace 복귀 예약을 취소
         StopAllCoroutines();
         if (_currentHealth > 0f)
         {
+            // Todo : 맞은 부위에 피 스프레이를 실행하고싶다
+            GameObject bloodSpray = Instantiate(_bloodSprayPrefab, transform);
+            bloodSpray.transform.position = damageInfo.HitPoint;
+            bloodSpray.transform.forward = damageInfo.HitNormal;
             ChangeState(ZombieState.Hit);
             StartCoroutine(Hit_Coroutine());
         }
         else
         {
+            Debug.Log($"{_state} -> Death");
             ChangeState(ZombieState.Death);
             StartCoroutine(Death_Coroutine());
         }

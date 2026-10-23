@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Drum : MonoBehaviour
+public class Drum : MonoBehaviour, IDamageable
 {
     [SerializeField] private ParticleSystem _explosionEffectPrefab;
 
@@ -21,11 +21,11 @@ public class Drum : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    public void Damage(float damage)
+    public void TakeDamage(DamageInfo damageInfo)
     {
         if (_health <= 0) return;
 
-        _health -= damage;
+        _health -= damageInfo.Value;
 
         if (_health <= 0) StartCoroutine(Explode_Coroutine());
     }
@@ -57,8 +57,13 @@ public class Drum : MonoBehaviour
         // 1. 드럼통들에게 데미지를준다
         foreach (Collider col in colliders)
         {
-            col.GetComponent<Drum>()?.Damage(_damage);
-            col.GetComponent<Zombie>()?.TakeDamage(_damage);
+            DamageInfo damageInfo = new()
+            {
+                Value = _damage,
+                HitPoint = transform.position,
+                HitNormal = transform.forward,
+            };
+            col.GetComponent<IDamageable>()?.TakeDamage(damageInfo);
         }
     }
 }
