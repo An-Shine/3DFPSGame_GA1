@@ -414,7 +414,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8684a04138222be498de699b989e4ff3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Minimap
-  _camera: {fileID: 1396804946}
+  _minimapCamera: {fileID: 0}
+  _mapNameText: {fileID: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -483,7 +484,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 8183
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -1161,7 +1162,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   _maxHealth: 100
-  _uiHitEffect: {fileID: 423544735}
 --- !u!1 &542271385
 GameObject:
   m_ObjectHideFlags: 0
@@ -2816,6 +2816,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MinimapCamera
   _target: {fileID: 506122740}
   _height: 8
+  _zoomStep: 2
+  _minSize: 4
+  _maxSize: 16
 --- !u!114 &1396804945
 MonoBehaviour:
   m_ObjectHideFlags: 0
