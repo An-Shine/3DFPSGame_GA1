@@ -1711,7 +1711,7 @@ MonoBehaviour:
     _container: {fileID: 1857935413}
     _nonLazy: 1
   - _name: Zombie
-    _component: {fileID: 1800010401058278130, guid: ca0b94d49da38df47bd2b8b3cedb0ce1, type: 3}
+    _component: {fileID: 1726400432372105046, guid: ca0b94d49da38df47bd2b8b3cedb0ce1, type: 3}
     _count: 10
     _container: {fileID: 603751720}
     _nonLazy: 1
@@ -2601,6 +2601,7 @@ GameObject:
   - component: {fileID: 1040589736}
   - component: {fileID: 1040589738}
   - component: {fileID: 1040589737}
+  - component: {fileID: 1040589739}
   m_Layer: 5
   m_Name: ZombieCount
   m_TagString: Untagged
@@ -2727,6 +2728,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1040589735}
   m_CullTransparentMesh: 1
+--- !u!114 &1040589739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1040589735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 856c811ca2f3bbe429ff5a0abcec8e7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI_ZombieCount
+  _zombieCountUIText: {fileID: 1040589737}
+  _spawner: {fileID: 1787505199}
 --- !u!1 &1154283726
 GameObject:
   m_ObjectHideFlags: 0
@@ -2984,7 +2999,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1388885476}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2994,7 +3009,7 @@ Transform:
   - {fileID: 1534194950}
   - {fileID: 293069771}
   - {fileID: 1428614114}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1787505200}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1396804943
 GameObject:
@@ -3727,8 +3742,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a61802ea796cf3743abcb73bf807325e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieSpawner
-  _zombie: {fileID: 1726400432372105046, guid: ca0b94d49da38df47bd2b8b3cedb0ce1, type: 3}
-  _poolSize: 5
+  _poolManager: {fileID: 717395118}
   _spawnPoints:
   - {fileID: 1154283727}
   - {fileID: 643266055}
@@ -3736,6 +3750,7 @@ MonoBehaviour:
   - {fileID: 293069771}
   - {fileID: 1428614114}
   _spawnInterval: 1
+  _maxSpawnCount: 10
 --- !u!4 &1787505200
 Transform:
   m_ObjectHideFlags: 0
@@ -3748,7 +3763,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1388885477}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1800913892
@@ -4956,4 +4972,3 @@ SceneRoots:
   - {fileID: 812270680}
   - {fileID: 1396804947}
   - {fileID: 1787505200}
-  - {fileID: 1388885477}

@@ -69,6 +69,7 @@ public class Zombie : MonoBehaviour, IDamageable
     public float MaxHealth => _maxHealth;
 
     public event Action OnDamaged;
+    public event Action<Zombie> OnDeath;
 
     private void Awake()
     {
@@ -402,6 +403,7 @@ public class Zombie : MonoBehaviour, IDamageable
         {
             Debug.Log($"{_state} -> Death");
             ChangeState(ZombieState.Death);
+            OnDeath?.Invoke(this);
             StartCoroutine(Death_Coroutine());
         }
     }
