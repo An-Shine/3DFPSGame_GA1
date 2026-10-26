@@ -1,5 +1,8 @@
 using System.Collections;
 using UnityEngine;
+using System;
+using Redcode.Pools;
+using System.Collections.Generic;
 
 public enum ZombieState
 {
@@ -15,7 +18,7 @@ public enum ZombieState
 //FSM 유한상태머신 : 유한개의 상태가 있고, 상태마다 행동을 다르게 함으로써 AI를 구현하는 유명한 방법
 // 상태 : 객체가 가질 수 있는 어떤 조건이나 상황
 // 전이 : 조건에 따라 현재 상태에서 다른 상태로 넘어가는 것
-// 그리고 위 방식에 따라 규칙을 세워둔 것을 "머신" 
+// 그리고 위 방식에 따라 규칙을 세워둔 것을 "머신"
 
 // 좀비가 가질 수 있는 상태
 
@@ -59,9 +62,13 @@ public class Zombie : MonoBehaviour, IDamageable
     private float _patrolWaitTimer;
     private float _attackTimer;
     private float _progressTimer;
+    private IPool<Zombie> _pool;
+    private readonly List<GameObject> _bloodSprays = new();
 
-    public float Health => _health;
+    public float Health => _currentHealth;
     public float MaxHealth => _maxHealth;
+
+    public event Action OnDamaged;
 
     private void Awake()
     {
@@ -84,6 +91,7 @@ public class Zombie : MonoBehaviour, IDamageable
         _player = GameObject.FindGameObjectWithTag("Player");
         ChangeState(ZombieState.Idle);
         ResetTimers();
+        OnDamaged?.Invoke();
     }
 
     private void Update()
@@ -272,7 +280,7 @@ public class Zombie : MonoBehaviour, IDamageable
         // 후보 선택은 최대 10번만 시도
         for (int i = 0; i < 10; i++)
         {
-            float angle = Random.Range(0f, 360f);
+            float angle = UnityEngine.Random.Range(0f, 360f);
             Vector3 direction = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
             Vector3 candidate = _patrolPointA + direction * _patrolDistance;
             if (!IsPatrolPathClear(_patrolPointA, candidate))
@@ -382,10 +390,11 @@ public class Zombie : MonoBehaviour, IDamageable
         StopAllCoroutines();
         if (_currentHealth > 0f)
         {
-            // Todo : 맞은 부위에 피 스프레이를 실행하고싶다
             GameObject bloodSpray = Instantiate(_bloodSprayPrefab, transform);
+            _bloodSprays.Add(bloodSpray);
             bloodSpray.transform.position = damageInfo.HitPoint;
             bloodSpray.transform.forward = damageInfo.HitNormal;
+            OnDamaged?.Invoke();
             ChangeState(ZombieState.Hit);
             StartCoroutine(Hit_Coroutine());
         }
@@ -407,6 +416,38 @@ public class Zombie : MonoBehaviour, IDamageable
     {
         _controller.enabled = false;
         yield return new WaitForSeconds(0.5f);
-        Destroy(gameObject);
+
+        ClearBloodSprays();
+
+        if (_pool != null)
+        {
+            _pool.Take(this);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public void Spawn(IPool<Zombie> pool, Vector3 position, Quaternion rotation)
+    {
+        _pool = pool;
+
+        _controller.enabled = false;
+        transform.SetPositionAndRotation(position, rotation);
+
+        ResetForSpawn();
+    }
+
+    private void ClearBloodSprays()
+    {
+        foreach (var spray in _bloodSprays)
+        {
+            if (spray != null)
+            {
+                Destroy(spray);
+            }
+        }
+        _bloodSprays.Clear();
     }
 }

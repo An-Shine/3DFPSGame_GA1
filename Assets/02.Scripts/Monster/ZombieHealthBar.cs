@@ -13,11 +13,27 @@ public class ZombieHealthBar : MonoBehaviour
         _zombie = GetComponent<Zombie>();
     }
 
+    private void Start()
+    {
+        if (_zombie != null)
+        {
+            _zombie.OnDamaged += OnZombieDamaged;
+        }
+    }
+
     private void LateUpdate()
     {
-        _slider.value = _zombie.Health / _zombie.MaxHealth;
-
         // 빌보드 : 체력바가 카메라를 쳐다보게한다
         _healthBarCanvas.forward = Camera.main.transform.forward;
+    }
+
+    private void OnZombieDamaged()
+    {
+        RefreshHealthBar();
+    }
+
+    private void RefreshHealthBar()
+    {
+        _slider.value = _zombie.Health / _zombie.MaxHealth;
     }
 }
