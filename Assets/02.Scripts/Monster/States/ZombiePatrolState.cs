@@ -1,14 +1,18 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ZombiePatrolState : IZombieState
 {
     private readonly Zombie _zombie;
+    private readonly NavMeshPath _path = new();
     private Vector3 _pointA;
     private Vector3 _pointB;
     private Vector3 _target;
     private Vector3 _progressPosition;
     private float _waitTimer;
     private float _progressTimer;
+    private bool _waiting;
+    private bool _hasDestination;
 
     public ZombiePatrolState(Zombie zombie)
     {
@@ -17,18 +21,51 @@ public class ZombiePatrolState : IZombieState
 
     public bool TryPrepareRoute()
     {
-        _pointA = _zombie.transform.position;
+        if (!_zombie.CanNavigate)
+        {
+            return false;
+        }
+
+        NavMeshQueryFilter filter = new()
+        {
+            agentTypeID = _zombie.Agent.agentTypeID,
+            areaMask = _zombie.Agent.areaMask
+        };
+
+        if (!NavMesh.SamplePosition(_zombie.transform.position, out NavMeshHit start,
+            _zombie.NavMeshSampleDistance, filter))
+        {
+            return false;
+        }
+
+        _pointA = start.position;
         for (int i = 0; i < 10; i++)
         {
             float angle = Random.Range(0f, 360f);
             Vector3 direction = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
             Vector3 candidate = _pointA + direction * _zombie.PatrolDistance;
-            if (!IsPathClear(_pointA, candidate))
+
+            // NavMesh 위의 위치라도 현재 좀비에서 도달 가능한지 별도로 검사
+            if (!NavMesh.SamplePosition(candidate, out NavMeshHit hit,
+                _zombie.NavMeshSampleDistance, filter))
             {
                 continue;
             }
 
-            _pointB = candidate;
+            float minDistance = Mathf.Max(_zombie.ArrivalDistance,
+                _zombie.Agent.stoppingDistance) * 2f;
+            if (_zombie.GetHorizontalDistance(_pointA, hit.position) <= minDistance)
+            {
+                continue;
+            }
+
+            if (!_zombie.Agent.CalculatePath(hit.position, _path) ||
+                _path.status != NavMeshPathStatus.PathComplete)
+            {
+                continue;
+            }
+
+            _pointB = hit.position;
             _target = _pointB;
             return true;
         }
@@ -38,9 +75,10 @@ public class ZombiePatrolState : IZombieState
 
     public void EnterState()
     {
-        // Idle에서 준비한 순찰 지점은 유지하고 시간만 초기화한다.
         _waitTimer = 0f;
+        _waiting = false;
         ResetProgress();
+        _hasDestination = _zombie.MoveTo(_target);
     }
 
     public void UpdateState()
@@ -51,71 +89,63 @@ public class ZombiePatrolState : IZombieState
             return;
         }
 
-        float distance = _zombie.GetHorizontalDistance(_zombie.transform.position, _target);
-        if (distance > _zombie.ArrivalDistance)
+        if (!_zombie.CanNavigate)
         {
-            if (!IsPathClear(_zombie.transform.position, _target))
-            {
-                _zombie.ChangeState(ZombieState.Idle);
-                return;
-            }
-
-            _zombie.MoveTo(_target);
-            CheckProgress();
+            _zombie.ChangeState(ZombieState.Idle);
             return;
         }
 
-        // 도착 후 1초 대기는 장애물에 막힌 것으로 판단하지 않음
-        ResetProgress();
-        _waitTimer += Time.deltaTime;
-        if (_waitTimer < _zombie.PatrolWaitDuration)
+        if (_waiting)
         {
+            _waitTimer += Time.deltaTime;
+            if (_waitTimer >= _zombie.PatrolWaitDuration)
+            {
+                _target = _target == _pointB ? _pointA : _pointB;
+                _waitTimer = 0f;
+                _waiting = false;
+                ResetProgress();
+                _hasDestination = _zombie.MoveTo(_target);
+            }
+
             return;
         }
 
-        _waitTimer = 0f;
-        _target = _target == _pointB ? _pointA : _pointB;
-    }
-
-    private bool IsPathClear(Vector3 from, Vector3 to)
-    {
-        // 기존 검사 유지: Scale (1, 1, 1)과 높이 차이가 작은 바닥 기준.
-        CharacterController controller = _zombie.Controller;
-        Vector3 direction = to - from;
-        direction.y = 0f;
-        float distance = direction.magnitude;
-        Vector3 center = from + controller.center;
-        float radius = controller.radius;
-        float offset = Mathf.Max(0f, controller.height * 0.5f - radius);
-        Vector3 bottom = center - Vector3.up * offset;
-        Vector3 top = center + Vector3.up * offset;
-
-        if (Physics.CheckCapsule(bottom, top, radius,
-            _zombie.ObstacleMask, QueryTriggerInteraction.Ignore))
+        if (!_hasDestination)
         {
-            return false;
+            _zombie.ChangeState(ZombieState.Idle);
+            return;
         }
 
-        if (distance > 0f && Physics.CapsuleCast(bottom, top, radius,
-            direction.normalized, distance, _zombie.ObstacleMask, QueryTriggerInteraction.Ignore))
+        // 경로 계산 중인 시간을 도착이나 이동 막힘으로 판단하지 않음
+        if (_zombie.Agent.pathPending)
         {
-            return false;
+            ResetProgress();
+            return;
         }
 
-        int steps = Mathf.Max(1, Mathf.CeilToInt(distance / 0.5f));
-        float feetOffset = controller.center.y - controller.height * 0.5f;
-        for (int i = 0; i <= steps; i++)
+        if (_zombie.Agent.isStopped)
         {
-            Vector3 position = Vector3.Lerp(from, to, (float)i / steps);
-            Vector3 origin = position + Vector3.up * (feetOffset + 0.3f);
-            if (!Physics.Raycast(origin, Vector3.down, 0.6f,
-                _zombie.GroundMask, QueryTriggerInteraction.Ignore))
-            {
-                return false;
-            }
+            ResetProgress();
+            _hasDestination = _zombie.MoveTo(_target);
+            return;
         }
 
-        return true;
+        if (_zombie.Agent.pathStatus != NavMeshPathStatus.PathComplete)
+        {
+            _zombie.ChangeState(ZombieState.Idle);
+            return;
+        }
+
+        if (_zombie.HasReachedDestination())
+        {
+            _zombie.StopMoving();
+            _waiting = true;
+            _waitTimer = 0f;
+            ResetProgress();
+            return;
+        }
+
+        CheckProgress();
     }
 
     private void CheckProgress()

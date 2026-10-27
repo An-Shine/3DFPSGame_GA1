@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Redcode.Pools;
 using UnityEngine;
+using UnityEngine.AI;
 
 public enum ZombieState
 {
@@ -14,7 +15,7 @@ public enum ZombieState
     Patrol
 }
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(NavMeshAgent), typeof(CapsuleCollider))]
 public class Zombie : MonoBehaviour, IDamageable
 {
     [Header("스탯")]
@@ -35,11 +36,9 @@ public class Zombie : MonoBehaviour, IDamageable
     [SerializeField, Min(0f)] private float _patrolWaitDuration = 1f;
     [SerializeField, Min(0.05f)] private float _arrivalDistance = 0.2f;
 
-    [Header("순찰 지점 검사")]
-    [SerializeField] private LayerMask _groundMask = 1 << 8;
-    [SerializeField] private LayerMask _obstacleMask = (1 << 9) | (1 << 10) | (1 << 12);
+    [Header("NavMesh 위치 검사")]
+    [SerializeField, Min(0.1f)] private float _navMeshSampleDistance = 2f;
 
-    private CharacterController _controller;
     private GameObject _player;
     private IPool<Zombie> _pool;
     private Dictionary<ZombieState, IZombieState> _states;
@@ -47,10 +46,11 @@ public class Zombie : MonoBehaviour, IDamageable
     private ZombieHitState _hitState;
     private ZombieState _state = ZombieState.Idle;
     private Vector3 _startPosition;
-    private Vector3 _moveDirection;
     private float _currentHealth;
     private bool _spawnInitialized;
     private readonly List<GameObject> _bloodSprays = new();
+    private NavMeshAgent _agent;
+    private Collider _collider;
 
     public float Health => _currentHealth;
     public float MaxHealth => _maxHealth;
@@ -63,20 +63,24 @@ public class Zombie : MonoBehaviour, IDamageable
     public float PatrolDistance => _patrolDistance;
     public float PatrolWaitDuration => _patrolWaitDuration;
     public float ArrivalDistance => _arrivalDistance;
-    public LayerMask GroundMask => _groundMask;
-    public LayerMask ObstacleMask => _obstacleMask;
-    public CharacterController Controller => _controller;
+    public float NavMeshSampleDistance => _navMeshSampleDistance;
     public GameObject Player => _player;
     public GameObject BloodSprayPrefab => _bloodSprayPrefab;
     public Vector3 StartPosition => _startPosition;
     public IPool<Zombie> Pool => _pool;
+    public NavMeshAgent Agent => _agent;
+    public Collider BodyCollider => _collider;
+    public bool CanNavigate => _agent != null && _agent.isActiveAndEnabled && _agent.isOnNavMesh;
 
     public event Action OnDamaged;
     public event Action<Zombie> OnDeath;
 
     private void Awake()
     {
-        _controller = GetComponent<CharacterController>();
+        // 길을 찾아 걷게해주는 컴포넌트 NavMeshAgent를 찾아서 참조
+        _agent = GetComponent<NavMeshAgent>();
+        _agent.speed = _moveSpeed;
+        _collider = GetComponent<CapsuleCollider>();
 
         // 상태 객체는 좀비마다 한 번 생성하고, 재진입 시 초기화해 재사용
         ZombiePatrolState patrolState = new ZombiePatrolState(this);
@@ -106,18 +110,11 @@ public class Zombie : MonoBehaviour, IDamageable
     {
         if (GameManager.Instance.State != GameState.Playing)
         {
+            StopMoving();
             return;
         }
 
-        _moveDirection = Vector3.zero;
-
-        // 사망 상태도 반환 대기 시간을 계산하므로 갱신
         _currentState?.UpdateState();
-
-        if (_controller.enabled)
-        {
-            _controller.SimpleMove(_moveDirection * _moveSpeed);
-        }
     }
 
     private void OnDisable()
@@ -154,29 +151,57 @@ public class Zombie : MonoBehaviour, IDamageable
         _currentState.EnterState();
     }
 
-    public void Spawn(IPool<Zombie> pool, Vector3 position, Quaternion rotation)
+    public bool Spawn(IPool<Zombie> pool, Vector3 position, Quaternion rotation)
     {
         _pool = pool;
-        _controller.enabled = false;
+        // 풀에서 꺼낸 Agent를 켜 둔 채 Transform만 순간이동시키지 않음
+        StopMoving();
+        _agent.enabled = false;
         transform.SetPositionAndRotation(position, rotation);
-        ResetForSpawn();
+        return ResetForSpawn();
     }
 
-    public void ResetForSpawn()
+    public bool ResetForSpawn()
     {
         // 같은 Idle로 재사용돼도 진입 처리와 타이머 초기화를 다시 실행
         _currentState?.ExitState();
         _currentState = null;
         ClearBloodSprays();
 
-        _controller.enabled = true;
+        _spawnInitialized = true;
+        _agent.enabled = false;
+        _collider.enabled = false;
+        NavMeshQueryFilter filter = new()
+        {
+            agentTypeID = _agent.agentTypeID,
+            areaMask = _agent.areaMask
+        };
+        if (!NavMesh.SamplePosition(transform.position, out NavMeshHit hit,
+            _navMeshSampleDistance, filter))
+        {
+            Debug.LogWarning("좀비 스폰 위치 주변에 맞는 NavMesh가 없습니다. Surface 베이크와 스폰 위치를 확인하세요.", this);
+            return false;
+        }
+
+        // 캡슐 중심이 원점인 현재 프리팹은 Base Offset만큼 바닥 위에 배치
+        transform.position = hit.position + Vector3.up * _agent.baseOffset;
+        _agent.enabled = true;
+        if (!_agent.isOnNavMesh)
+        {
+            _agent.enabled = false;
+            Debug.LogWarning("좀비 Agent를 NavMesh에 연결하지 못했습니다.", this);
+            return false;
+        }
+
+        _agent.speed = _moveSpeed;
+        _collider.enabled = true;
         _currentHealth = _maxHealth;
         _startPosition = transform.position;
         _player = GameObject.FindGameObjectWithTag("Player");
-        _spawnInitialized = true;
 
         ChangeState(ZombieState.Idle);
         OnDamaged?.Invoke();
+        return true;
     }
 
     public void TakeDamage(DamageInfo damageInfo)
@@ -201,37 +226,67 @@ public class Zombie : MonoBehaviour, IDamageable
         OnDamaged?.Invoke();
     }
 
-    public void MoveTo(Vector3 target)
+    public bool MoveTo(Vector3 target)
+    {
+        if (!CanNavigate)
+        {
+            return false;
+        }
+        // 길 찾기와 이동 중 회전은 Agent가 담당
+        _agent.isStopped = false;
+        return _agent.SetDestination(target);
+    }
+
+    public void StopMoving()
+    {
+        if (!CanNavigate)
+        {
+            return;
+        }
+        _agent.ResetPath();
+        _agent.velocity = Vector3.zero;
+        _agent.isStopped = true;
+    }
+
+    public bool HasReachedDestination()
+    {
+        if (!CanNavigate || _agent.pathPending ||
+            _agent.pathStatus != NavMeshPathStatus.PathComplete)
+        {
+            return false;
+        }
+
+        return !float.IsInfinity(_agent.remainingDistance) &&
+            _agent.remainingDistance <= Mathf.Max(_arrivalDistance, _agent.stoppingDistance);
+    }
+
+    public void FaceTo(Vector3 target)
     {
         Vector3 direction = target - transform.position;
         direction.y = 0f;
+
         if (direction.sqrMagnitude < 0.0001f)
         {
             return;
         }
 
         transform.forward = direction.normalized;
-        float step = _moveSpeed * Time.deltaTime;
-        float ratio = step > 0f ? Mathf.Clamp01(direction.magnitude / step) : 0f;
-        _moveDirection = direction.normalized * ratio;
-    }
-
-    public void StopMoving()
-    {
-        _moveDirection = Vector3.zero;
     }
 
     public float GetPlayerDistance()
     {
         return _player == null
             ? float.PositiveInfinity
-            : Vector3.Distance(transform.position, _player.transform.position);
+            : Vector3.Distance(
+                transform.position,
+                _player.transform.position);
     }
 
     public float GetHorizontalDistance(Vector3 from, Vector3 to)
     {
         Vector3 direction = to - from;
         direction.y = 0f;
+
         return direction.magnitude;
     }
 

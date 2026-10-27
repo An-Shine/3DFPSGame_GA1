@@ -1,0 +1,4 @@
+Removed stale editor: Unity.AI.Navigation.Editor.NavMeshLinkEditor, target count: 1
+Removed stale editor: UnityEditor.TransformInspector, target count: 1
+Removed stale editor: UnityEditor.GameObjectInspector, target count: 1
+SUCCESS. Removed stale editor count: 3

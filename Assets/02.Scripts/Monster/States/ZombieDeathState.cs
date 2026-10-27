@@ -16,7 +16,8 @@ public class ZombieDeathState : IZombieState
         _timer = 0f;
         _completed = false;
         _zombie.StopMoving();
-        _zombie.Controller.enabled = false;
+        _zombie.Agent.enabled = false;
+        _zombie.BodyCollider.enabled = false;
 
         // 사망 알림은 진입할 때 한 번만 보냄
         _zombie.NotifyDeath();

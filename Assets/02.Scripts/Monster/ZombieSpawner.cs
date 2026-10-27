@@ -57,7 +57,12 @@ public class ZombieSpawner : MonoBehaviour
         }
 
         Transform point = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
-        zombie.Spawn(_pool, point.position, point.rotation);
+        if (!zombie.Spawn(_pool, point.position, point.rotation))
+        {
+            // NavMesh에 놓을 수 없는 객체는 반환하고 생성 수에 포함하지 않음
+            _pool.Take(zombie);
+            return;
+        }
         zombie.OnDeath += HandleZombieDeath;
 
         _totalSpawnCount++;

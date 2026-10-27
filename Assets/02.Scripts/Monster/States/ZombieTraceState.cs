@@ -21,8 +21,8 @@ public class ZombieTraceState : IZombieState
             return;
         }
 
-        float distanceFromStart = Vector3.Distance(
-            _zombie.transform.position, _zombie.StartPosition);
+        float distanceFromStart = Vector3.Distance(_zombie.transform.position, _zombie.StartPosition);
+
         if (distanceFromStart > _zombie.ComebackDistance)
         {
             _zombie.ChangeState(ZombieState.Comeback);

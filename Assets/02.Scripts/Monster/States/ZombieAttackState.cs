@@ -29,6 +29,7 @@ public class ZombieAttackState : IZombieState
             _zombie.ChangeState(ZombieState.Trace);
             return;
         }
+        _zombie.FaceTo(_zombie.Player.transform.position);
 
         _timer += Time.deltaTime;
         if (_timer < _zombie.AttackInterval)
