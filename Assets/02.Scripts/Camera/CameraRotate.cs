@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// 역할 : 마우스를 움직이면 카메라를 그 방향으로 회전하고 싶다
+// 역할 : 마우스를 움직이면 카메라를 그 방향으로 회전하고 싶음
 public class CameraRotate : MonoBehaviour
 {
     [SerializeField] private float _rotationSpeed = 200f;
@@ -11,23 +11,23 @@ public class CameraRotate : MonoBehaviour
     private void Update()
     {
         if (GameManager.Instance.State != GameState.Playing) return;
-        // 1. 마우스 입력을 받는다
+        // 1. 마우스 입력을 받음
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
         GameLogger.Log($"mouseX: {mouseX}, mouseY: {mouseY}");
 
-        // 2. 마우스 입력만큼 회전값을 누적한다
+        // 2. 마우스 입력만큼 회전값을 누적
         _accumulationX += mouseX * _rotationSpeed * Time.deltaTime;
         _accumulationY += -mouseY * _rotationSpeed * Time.deltaTime;
 
         // 3. 누적하기 전에 내 변수에서 먼저 -90 ~ 90 도로 제한
         _accumulationY = Mathf.Clamp(_accumulationY, -90f, 90f);
 
-        // 4. 누적한 회전값을 카메라에 적용한다
+        // 4. 누적한 회전값을 카메라에 적용
         transform.eulerAngles = new Vector3(_accumulationY, _accumulationX, 0);
 
         /*
-        // 3. 그 방향으로 회전시킨다
+        // 3. 그 방향으로 회전시킴
         // 새로운 위치 = 현재 위치 + 속도 * 시간
         // 새로운 각도 = 현재 각도 + 회전속도 * 시간
         transform.eulerAngles += direction * _rotationSpeed * Time.deltaTime;
@@ -37,7 +37,7 @@ public class CameraRotate : MonoBehaviour
 
         // 정면 0도
         // 하늘을 살짝 1도만큼 쳐다보면 : -1 > 359 > 90
-        // 유니티는 0~360 체계를 쓰기때문에 음수는 자동으로 변환되서 반환된다
+        // 유니티는 0~360 체계를 쓰기때문에 음수는 자동으로 변환되서 반환됨
         rotation.x = Mathf.Clamp(rotation.x, -90, 90);
         transform.eulerAngles = rotation;
         */

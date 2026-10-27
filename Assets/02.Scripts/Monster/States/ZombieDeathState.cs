@@ -18,7 +18,7 @@ public class ZombieDeathState : IZombieState
         _zombie.StopMoving();
         _zombie.Controller.enabled = false;
 
-        // 사망 알림은 진입할 때 한 번만 보낸다.
+        // 사망 알림은 진입할 때 한 번만 보냄
         _zombie.NotifyDeath();
     }
 
@@ -35,7 +35,7 @@ public class ZombieDeathState : IZombieState
             return;
         }
 
-        // 반환으로 비활성화되기 전에 중복 실행을 차단한다.
+        // 반환으로 비활성화되기 전에 중복 실행을 차단
         _completed = true;
         CompleteDeath();
     }

@@ -10,7 +10,7 @@ public class Player : MonoBehaviour, IDamageable
     public float MaxHealth => _maxHealth;
     public float Health => _health;
 
-    public event Action OnDamaged;  // Action 자료형은 함수들을 저장할 수 있다, event 를 붙이면 외부에서 수정 불가능
+    public event Action OnDamaged;  // Action 자료형은 함수들을 저장할 수 있음, event 를 붙이면 외부에서 수정 불가능
 
     private void Start()
     {

@@ -32,7 +32,7 @@ public class ZombieIdleState : IZombieState
             return;
         }
 
-        // 경로를 못 찾으면 Idle을 유지하고 다음 대기 시간 뒤 재시도한다.
+        // 경로를 못 찾으면 Idle을 유지하고 다음 대기 시간 뒤 재시도
         _timer = 0f;
         if (_patrolState.TryPrepareRoute())
         {

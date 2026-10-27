@@ -49,7 +49,7 @@ public class ZombieHitState : IZombieState
             return;
         }
 
-        // 기존 동작 유지: 피격 경직이 끝나면 플레이어를 추적한다.
+        // 기존 동작 유지: 피격 경직이 끝나면 플레이어를 추적
         _zombie.ChangeState(ZombieState.Trace);
     }
 

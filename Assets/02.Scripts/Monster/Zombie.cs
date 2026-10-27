@@ -78,7 +78,7 @@ public class Zombie : MonoBehaviour, IDamageable
     {
         _controller = GetComponent<CharacterController>();
 
-        // 상태 객체는 좀비마다 한 번 생성하고, 재진입 시 초기화해 재사용한다.
+        // 상태 객체는 좀비마다 한 번 생성하고, 재진입 시 초기화해 재사용
         ZombiePatrolState patrolState = new ZombiePatrolState(this);
         _hitState = new ZombieHitState(this);
         _states = new Dictionary<ZombieState, IZombieState>
@@ -95,7 +95,7 @@ public class Zombie : MonoBehaviour, IDamageable
 
     private void Start()
     {
-        // 스포너가 먼저 초기화한 좀비를 Start에서 다시 초기화하지 않는다.
+        // 스포너가 먼저 초기화한 좀비를 Start에서 다시 초기화하지 않음
         if (!_spawnInitialized)
         {
             ResetForSpawn();
@@ -111,7 +111,7 @@ public class Zombie : MonoBehaviour, IDamageable
 
         _moveDirection = Vector3.zero;
 
-        // 사망 상태도 반환 대기 시간을 계산하므로 갱신한다.
+        // 사망 상태도 반환 대기 시간을 계산하므로 갱신
         _currentState?.UpdateState();
 
         if (_controller.enabled)
@@ -129,7 +129,7 @@ public class Zombie : MonoBehaviour, IDamageable
 
     public void ChangeState(ZombieState nextState, bool restart = false)
     {
-        // 연속 피격일 때만 같은 상태에 다시 진입해 경직 시간을 갱신한다.
+        // 연속 피격일 때만 같은 상태에 다시 진입해 경직 시간을 갱신
         if (_currentState != null && _state == nextState && !restart)
         {
             return;
@@ -164,7 +164,7 @@ public class Zombie : MonoBehaviour, IDamageable
 
     public void ResetForSpawn()
     {
-        // 같은 Idle로 재사용돼도 진입 처리와 타이머 초기화를 다시 실행한다.
+        // 같은 Idle로 재사용돼도 진입 처리와 타이머 초기화를 다시 실행
         _currentState?.ExitState();
         _currentState = null;
         ClearBloodSprays();
@@ -197,7 +197,7 @@ public class Zombie : MonoBehaviour, IDamageable
             ChangeState(ZombieState.Death);
         }
 
-        // 사망하는 타격도 체력바에 0을 전달한다.
+        // 사망하는 타격도 체력바에 0을 전달
         OnDamaged?.Invoke();
     }
 
@@ -242,7 +242,7 @@ public class Zombie : MonoBehaviour, IDamageable
 
     public void ClearBloodSprays()
     {
-        // 혈흔은 Hit 종료 뒤에도 남으므로 수명 관리는 Zombie가 담당한다.
+        // 혈흔은 Hit 종료 뒤에도 남으므로 수명 관리는 Zombie가 담당
         foreach (GameObject spray in _bloodSprays)
         {
             if (spray != null)
@@ -256,7 +256,7 @@ public class Zombie : MonoBehaviour, IDamageable
 
     public void NotifyDeath()
     {
-        // event는 선언한 클래스에서만 발생시킨다. Death 진입 시 한 번 호출한다.
+        // event는 선언한 클래스에서만 발생시킴. Death 진입 시 한 번 호출
         OnDeath?.Invoke(this);
     }
 }

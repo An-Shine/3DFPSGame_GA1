@@ -4,7 +4,7 @@ using UnityEngine;
 public class DictionaryTest : MonoBehaviour
 {
     // List 는 인덱스를 이용해 데이터에 접근했지만
-    // 딕셔너리는 요소를 저장할때 "키" 와 "값" 쌍의 형태로 저장한다
+    // 딕셔너리는 요소를 저장할때 "키" 와 "값" 쌍의 형태로 저장
     // HashTable(= DIctionary)는 키와 값이 쌍으로 이루어진 데이터를 관리할 떄 사용하는 자료구조
 
     private void Start()

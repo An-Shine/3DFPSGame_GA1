@@ -5,7 +5,7 @@ using System.Threading;
 public class CoroutineTest : MonoBehaviour
 {
     // 유니티의 코루틴이란
-    // 비동기 실행과 제어를 효율적으로 제공하는 기능이다
+    // 비동기 실행과 제어를 효율적으로 제공하는 기능임
     // 1. 비동기 실행
     // 2. 시간에 따른 실행 제어
 
@@ -15,10 +15,10 @@ public class CoroutineTest : MonoBehaviour
     private void Start()
     {
         Debug.Log("시작!");
-        //Countdown 이라는 메서드를 비동기 방식으로 실행한다
+        //Countdown 이라는 메서드를 비동기 방식으로 실행
         StartCoroutine(Countdown_Coroutine());
 
-        // 그러므로 아래라인의 작업은 위에서 비동기 방식으로 실행한 코드를 기다릴 필요가없다
+        // 그러므로 아래라인의 작업은 위에서 비동기 방식으로 실행한 코드를 기다릴 필요가 없음
         Debug.Log("끝!");
     }
 

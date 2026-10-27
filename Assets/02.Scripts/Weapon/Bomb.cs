@@ -42,11 +42,11 @@ public class Bomb : MonoBehaviour
 
     private void ApplyDamage()
     {
-        // 0. 주위에 있는 드럼통을 모두 찾는다
+        // 0. 주위에 있는 드럼통을 모두 찾음
         Collider[] colliders =
             Physics.OverlapSphere(transform.position, _explosionRange, LayerMask.GetMask("Drum", "Zombie"));
 
-        // 1. 드럼통들에게 데미지를준다
+        // 1. 드럼통들에게 데미지를 줌
         foreach (Collider col in colliders)
         {
             DamageInfo damageInfo = new()

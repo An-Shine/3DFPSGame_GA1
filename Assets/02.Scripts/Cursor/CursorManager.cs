@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// 마우스 커서를 화면 가운데에 잠그고 숨긴다.
+// 마우스 커서를 화면 가운데에 잠그고 숨김
 public class CursorManager : MonoBehaviour
 {
     private void Awake()

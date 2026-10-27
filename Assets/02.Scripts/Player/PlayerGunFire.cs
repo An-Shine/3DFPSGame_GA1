@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
-// 마우스 왼쪽버튼을 누르면 바라보는 방향으로 총알을 발사하고싶다
+// 마우스 왼쪽버튼을 누르면 바라보는 방향으로 총알을 발사하고 싶음
 public class PlayerGunFire : MonoBehaviour
 {
     [SerializeField] private ParticleSystem _hitEffectPrefab;

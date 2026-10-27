@@ -65,7 +65,7 @@ public class ZombiePatrolState : IZombieState
             return;
         }
 
-        // 도착 후 1초 대기는 장애물에 막힌 것으로 판단하지 않는다.
+        // 도착 후 1초 대기는 장애물에 막힌 것으로 판단하지 않음
         ResetProgress();
         _waitTimer += Time.deltaTime;
         if (_waitTimer < _zombie.PatrolWaitDuration)

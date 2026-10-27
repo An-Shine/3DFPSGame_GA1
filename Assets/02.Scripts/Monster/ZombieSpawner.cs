@@ -23,7 +23,7 @@ public class ZombieSpawner : MonoBehaviour
 
     private void Start()
     {
-        // PoolManager가 Awake에서 풀을 만들므로 Start에서 가져온다
+        // PoolManager가 Awake에서 풀을 만들므로 Start에서 가져옴
         _pool = _poolManager.GetPool<Zombie>("Zombie");
     }
 
@@ -67,7 +67,7 @@ public class ZombieSpawner : MonoBehaviour
 
     private void HandleZombieDeath(Zombie zombie)
     {
-        // 좀비는 풀링으로 재사용되므로 구독 중복을 막기 위해 해제한다
+        // 좀비는 풀링으로 재사용되므로 구독 중복을 막기 위해 해제
         zombie.OnDeath -= HandleZombieDeath;
 
         _aliveCount--;

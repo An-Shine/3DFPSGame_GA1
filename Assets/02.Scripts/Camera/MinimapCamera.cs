@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// 미니맵 카메라 : 플레이어 머리 위에서 아래를 내려다보며 따라다닌다
+// 미니맵 카메라 : 플레이어 머리 위에서 아래를 내려다보며 따라다님
 [RequireComponent(typeof(Camera))]
 public class MinimapCamera : MonoBehaviour
 {
@@ -18,13 +18,13 @@ public class MinimapCamera : MonoBehaviour
     {
         _camera = GetComponent<Camera>();
 
-        // 시작 크기가 허용 범위를 벗어나 있으면 보정한다
+        // 시작 크기가 허용 범위를 벗어나 있으면 보정
         _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize, _minSize, _maxSize);
     }
 
     private void LateUpdate()
     {
-        // 1. 대상(플레이어)의 머리 위로 위치를 옮긴다
+        // 1. 대상(플레이어)의 머리 위로 위치를 옮김
         transform.position = _target.position + (Vector3.up * _height);
 
         transform.eulerAngles = new Vector3(90f, _target.eulerAngles.y, 0f);

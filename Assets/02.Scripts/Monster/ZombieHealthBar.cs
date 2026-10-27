@@ -23,7 +23,7 @@ public class ZombieHealthBar : MonoBehaviour
 
     private void LateUpdate()
     {
-        // 빌보드 : 체력바가 카메라를 쳐다보게한다
+        // 빌보드 : 체력바가 카메라를 쳐다보게 함
         _healthBarCanvas.forward = Camera.main.transform.forward;
     }
 

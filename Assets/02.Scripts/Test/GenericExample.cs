@@ -10,7 +10,7 @@ public class Cola
 
 public class Cup<T>
 {
-    public T Drink; // 클래스를 선언할때 T의 자료형이 정해진다
+    public T Drink; // 클래스를 선언할때 T의 자료형이 정해짐
 
     public Cup(T drink)
     {
