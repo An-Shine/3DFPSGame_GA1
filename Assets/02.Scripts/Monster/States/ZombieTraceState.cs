@@ -11,6 +11,7 @@ public class ZombieTraceState : IZombieState
 
     public void EnterState()
     {
+        _zombie.SetAnimTrigger("IdleToMove");
     }
 
     public void UpdateState()

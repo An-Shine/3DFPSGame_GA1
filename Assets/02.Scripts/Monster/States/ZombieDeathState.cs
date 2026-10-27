@@ -18,6 +18,7 @@ public class ZombieDeathState : IZombieState
         _zombie.StopMoving();
         _zombie.Agent.enabled = false;
         _zombie.BodyCollider.enabled = false;
+        _zombie.SetAnimTrigger("Death");
 
         // 사망 알림은 진입할 때 한 번만 보냄
         _zombie.NotifyDeath();
@@ -31,7 +32,7 @@ public class ZombieDeathState : IZombieState
         }
 
         _timer += Time.deltaTime;
-        if (_timer < 0.5f)
+        if (_timer < 2f)
         {
             return;
         }

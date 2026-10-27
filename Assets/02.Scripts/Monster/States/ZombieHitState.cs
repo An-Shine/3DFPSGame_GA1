@@ -20,6 +20,7 @@ public class ZombieHitState : IZombieState
     {
         _timer = 0f;
         _zombie.StopMoving();
+        _zombie.SetAnimTrigger("Hit");
         CreateBloodSpray();
     }
 
@@ -44,7 +45,7 @@ public class ZombieHitState : IZombieState
     public void UpdateState()
     {
         _timer += Time.deltaTime;
-        if (_timer < 0.3f)
+        if (_timer < 0.5f)
         {
             return;
         }

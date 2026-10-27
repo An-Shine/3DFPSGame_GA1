@@ -12,6 +12,7 @@ public class ZombieComebackState : IZombieState
     {
         // 복귀 경로를 먼저 요청한 뒤 도착 여부를 확인
         _hasDestination = _zombie.MoveTo(_zombie.StartPosition);
+        _zombie.SetAnimTrigger("IdleToMove");
     }
 
     public void UpdateState()

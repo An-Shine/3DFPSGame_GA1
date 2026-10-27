@@ -14,6 +14,7 @@ public class ZombieAttackState : IZombieState
     {
         _timer = 0f;
         _zombie.StopMoving();
+        _zombie.SetAnimTrigger("MoveToAttack");
     }
 
     public void UpdateState()
@@ -43,6 +44,12 @@ public class ZombieAttackState : IZombieState
 
     private void Attack()
     {
+        // 데미지는 Z_Attack의 애니메이션 이벤트(HitEvent)에서 처리
+        _zombie.SetAnimTrigger("StartAttack");
+    }
+
+    public void AttackAction()
+    {
         GameObject player = _zombie.Player;
         if (player == null)
         {
@@ -68,5 +75,6 @@ public class ZombieAttackState : IZombieState
     public void ExitState()
     {
         _zombie.StopMoving();
+        _zombie.SetAnimTrigger("AttackToMove");
     }
 }

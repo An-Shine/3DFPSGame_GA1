@@ -78,7 +78,9 @@ public class ZombiePatrolState : IZombieState
         _waitTimer = 0f;
         _waiting = false;
         ResetProgress();
+        _zombie.Agent.speed = _zombie.PatrolMoveSpeed;
         _hasDestination = _zombie.MoveTo(_target);
+        _zombie.SetAnimTrigger("IdleToPatrol");
     }
 
     public void UpdateState()
@@ -105,6 +107,7 @@ public class ZombiePatrolState : IZombieState
                 _waiting = false;
                 ResetProgress();
                 _hasDestination = _zombie.MoveTo(_target);
+                _zombie.SetAnimTrigger("IdleToPatrol");
             }
 
             return;
@@ -139,6 +142,7 @@ public class ZombiePatrolState : IZombieState
         if (_zombie.HasReachedDestination())
         {
             _zombie.StopMoving();
+            _zombie.SetAnimTrigger("MoveToIdle");
             _waiting = true;
             _waitTimer = 0f;
             ResetProgress();
@@ -176,5 +180,7 @@ public class ZombiePatrolState : IZombieState
     public void ExitState()
     {
         _zombie.StopMoving();
+        _zombie.Agent.speed = _zombie.MoveSpeed;
+        _zombie.ResetAnimTrigger("IdleToPatrol");
     }
 }

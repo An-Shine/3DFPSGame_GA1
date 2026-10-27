@@ -35,6 +35,7 @@ public class Zombie : MonoBehaviour, IDamageable
     [SerializeField, Min(0.5f)] private float _patrolDistance = 4f;
     [SerializeField, Min(0f)] private float _patrolWaitDuration = 1f;
     [SerializeField, Min(0.05f)] private float _arrivalDistance = 0.2f;
+    [SerializeField, Min(0.1f)] private float _patrolMoveSpeed = 1.5f;
 
     [Header("NavMesh 위치 검사")]
     [SerializeField, Min(0.1f)] private float _navMeshSampleDistance = 2f;
@@ -51,6 +52,7 @@ public class Zombie : MonoBehaviour, IDamageable
     private readonly List<GameObject> _bloodSprays = new();
     private NavMeshAgent _agent;
     private Collider _collider;
+    private Animator _animator;
 
     public float Health => _currentHealth;
     public float MaxHealth => _maxHealth;
@@ -62,6 +64,8 @@ public class Zombie : MonoBehaviour, IDamageable
     public float IdleDuration => _idleDuration;
     public float PatrolDistance => _patrolDistance;
     public float PatrolWaitDuration => _patrolWaitDuration;
+    public float PatrolMoveSpeed => _patrolMoveSpeed;
+    public float MoveSpeed => _moveSpeed;
     public float ArrivalDistance => _arrivalDistance;
     public float NavMeshSampleDistance => _navMeshSampleDistance;
     public GameObject Player => _player;
@@ -81,6 +85,7 @@ public class Zombie : MonoBehaviour, IDamageable
         _agent = GetComponent<NavMeshAgent>();
         _agent.speed = _moveSpeed;
         _collider = GetComponent<CapsuleCollider>();
+        _animator = GetComponentInChildren<Animator>();
 
         // 상태 객체는 좀비마다 한 번 생성하고, 재진입 시 초기화해 재사용
         ZombiePatrolState patrolState = new ZombiePatrolState(this);
@@ -137,16 +142,11 @@ public class Zombie : MonoBehaviour, IDamageable
             return;
         }
 
-        ZombieState previousState = _state;
         _currentState?.ExitState();
         StopMoving();
 
         _state = nextState;
         _currentState = _states[nextState];
-        if (previousState != nextState)
-        {
-            Debug.Log($"{previousState} -> {nextState}");
-        }
 
         _currentState.EnterState();
     }
@@ -200,6 +200,9 @@ public class Zombie : MonoBehaviour, IDamageable
         _player = GameObject.FindGameObjectWithTag("Player");
 
         ChangeState(ZombieState.Idle);
+        // 재사용된 좀비는 애니메이터 상태와 남은 트리거를 모두 지우고 기본 상태(Idle)에서 시작
+        _animator.Rebind();
+        _animator.Update(0f);
         OnDamaged?.Invoke();
         return true;
     }
@@ -314,4 +317,26 @@ public class Zombie : MonoBehaviour, IDamageable
         // event는 선언한 클래스에서만 발생시킴. Death 진입 시 한 번 호출
         OnDeath?.Invoke(this);
     }
+
+    public void SetAnimTrigger(string triggerName)
+    {
+        _animator.SetTrigger(triggerName);
+    }
+
+    public void ResetAnimTrigger(string triggerName)
+    {
+        _animator.ResetTrigger(triggerName);
+    }
+
+    public void AttackAction()
+    {
+        // 피격·사망으로 상태가 바뀐 뒤 늦게 도착한 이벤트는 무시
+        if (_state != ZombieState.Attack)
+        {
+            return;
+        }
+
+        ((ZombieAttackState)_states[ZombieState.Attack]).AttackAction();
+    }
+
 }

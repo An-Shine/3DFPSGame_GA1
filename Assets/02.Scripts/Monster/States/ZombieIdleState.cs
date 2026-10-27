@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class ZombieIdleState : IZombieState
@@ -16,6 +17,9 @@ public class ZombieIdleState : IZombieState
     {
         _timer = 0f;
         _zombie.StopMoving();
+        _zombie.ResetAnimTrigger("IdleToMove");
+        _zombie.ResetAnimTrigger("IdleToPatrol");
+        _zombie.SetAnimTrigger("MoveToIdle");
     }
 
     public void UpdateState()
