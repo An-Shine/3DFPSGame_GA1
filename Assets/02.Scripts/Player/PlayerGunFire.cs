@@ -30,16 +30,14 @@ public class PlayerGunFire : MonoBehaviour
         if (GameManager.Instance.State != GameState.Playing) return;
         _fireTimer -= Time.deltaTime;
         bool isMouseVisible = Cursor.visible;
+        bool isFiring = !isMouseVisible && Input.GetButton("Fire1") && _remainingBulletAmmo > 0;
+        _animator.SetBool("Fire", isFiring);
         // 1. 마우스 왼쪽버튼 입력받기
         if (!isMouseVisible && Input.GetButton("Fire1") && _fireTimer <= 0f && _remainingBulletAmmo > 0)
         {
             CancelReload();
             _fireTimer = _fireInterval;
             Shoot();
-            if (_animator.GetFloat("MoveMotion") == 0f)
-            {
-                _animator.SetTrigger("Attack");
-            }
         }
         if (Input.GetKeyDown(KeyCode.R) && _reloadCoroutine == null && _remainingBulletAmmo < _bulletAmmo)
         {

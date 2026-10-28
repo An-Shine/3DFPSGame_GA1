@@ -12,14 +12,25 @@ public class Player : MonoBehaviour, IDamageable
 
     public event Action OnDamaged;  // Action 자료형은 함수들을 저장할 수 있음, event 를 붙이면 외부에서 수정 불가능
 
+    private Animator _animator;
+    private int _injuredLayerIndex;
+
     private void Start()
     {
+        _animator = GetComponentInChildren<Animator>();
+        _injuredLayerIndex = _animator.GetLayerIndex("Injured");
         _health = _maxHealth;
     }
 
     public void TakeDamage(DamageInfo damageInfo)
     {
         _health -= damageInfo.Value;
+
+        // 체력에 따라 Injured 레이어의 가중치를 바꿔준다
+        float healthPercent = _health / _maxHealth;     // 0 ~ 1 사이
+        float injured = Mathf.InverseLerp(0.5f, 0f, healthPercent);
+        _animator.SetLayerWeight(_injuredLayerIndex, injured);
+
 
         OnDamaged?.Invoke();
 
