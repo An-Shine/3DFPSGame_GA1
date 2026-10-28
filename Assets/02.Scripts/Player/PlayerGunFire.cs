@@ -17,10 +17,12 @@ public class PlayerGunFire : MonoBehaviour
     private int _remainingBulletAmmo;
     private float _fireTimer = 0f;
     private Coroutine _reloadCoroutine;
+    private Animator _animator;
 
     private void Awake()
     {
         _remainingBulletAmmo = _bulletAmmo;
+        _animator = GetComponentInChildren<Animator>();
         ShowBulletCount();
     }
     private void Update()
@@ -34,6 +36,10 @@ public class PlayerGunFire : MonoBehaviour
             CancelReload();
             _fireTimer = _fireInterval;
             Shoot();
+            if (_animator.GetFloat("MoveMotion") == 0f)
+            {
+                _animator.SetTrigger("Attack");
+            }
         }
         if (Input.GetKeyDown(KeyCode.R) && _reloadCoroutine == null && _remainingBulletAmmo < _bulletAmmo)
         {

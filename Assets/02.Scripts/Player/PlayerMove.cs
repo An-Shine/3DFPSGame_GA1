@@ -5,6 +5,7 @@ public class PlayerMove : MonoBehaviour
     private const float Gravity = -20f;
     private const int MaxJumps = 2;
     private const float MaxStamina = 100f;
+    private Animator _animator;
 
     private float _yVeclocity = 0f; // 위아래 속도, 매 프레임마다 중력 가속도가 붙음
     private int _jumpCount = 0;
@@ -28,6 +29,7 @@ public class PlayerMove : MonoBehaviour
     {
         _characterController = GetComponent<CharacterController>();
         _stamina = MaxStamina;
+        _animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -40,6 +42,7 @@ public class PlayerMove : MonoBehaviour
         // 2. 키보드 입력에 따라 방향을 구함 ( 위아래로는 움직이지 않으므로 y = 0)
         Vector3 direction = new(h, 0f, v);
         direction.Normalize();
+        _animator.SetFloat("MoveMotion", direction.magnitude);  // 움직이면 1, 멈추면 0
         direction = transform.TransformDirection(direction);
 
         // 로컬좌표계 : 한 대상을 중심
