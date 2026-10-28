@@ -323,8 +323,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8684a04138222be498de699b989e4ff3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UI_Minimap
-  _minimapCamera: {fileID: 0}
-  _mapNameText: {fileID: 0}
+  _minimapCamera: {fileID: 1396804944}
+  _mapNameText: {fileID: 1512096563}
 --- !u!1 &293069770
 GameObject:
   m_ObjectHideFlags: 0
