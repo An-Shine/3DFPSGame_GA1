@@ -12,6 +12,9 @@ public class PlayerGunFire : MonoBehaviour
     [SerializeField] private int _bulletAmmo = 30;
     [SerializeField] private float _reloadTime = 1.5f;
 
+    [SerializeField] private GameObject[] _muzzleFlashes;
+    [SerializeField] private float _flashTime = 0.05f;
+
     private int _remainingBulletAmmo;
     private float _fireTimer = 0f;
     private Coroutine _reloadCoroutine;
@@ -48,6 +51,7 @@ public class PlayerGunFire : MonoBehaviour
 
     private void Shoot()
     {
+        StartCoroutine(MuzzleFlash_Coroutine());
         // 2. 레이(광선) 생성, 발사될 위치와 진행방향 설정하기
         Transform cameraTransform = Camera.main.transform;
         Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
@@ -92,5 +96,14 @@ public class PlayerGunFire : MonoBehaviour
         }
         StopCoroutine(_reloadCoroutine);
         _reloadCoroutine = null;
+    }
+
+    private IEnumerator MuzzleFlash_Coroutine()
+    {
+        int randomIndex = UnityEngine.Random.Range(0, _muzzleFlashes.Length);
+        GameObject flash = _muzzleFlashes[randomIndex];
+        flash.SetActive(true);
+        yield return new WaitForSeconds(_flashTime);
+        flash.SetActive(false);
     }
 }
