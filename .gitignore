@@ -82,3 +82,8 @@ crashlytics-build.properties
 
 * text=auto
 .husky/* text eol=lf
+
+# 개인 AI 스킬
+/.agents/skills/
+/.claude/skills/
+/skills-lock.json
