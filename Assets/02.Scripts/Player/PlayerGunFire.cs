@@ -1,12 +1,10 @@
 using UnityEngine;
-using TMPro;
 using System.Collections;
 
 // 마우스 왼쪽버튼을 누르면 바라보는 방향으로 총알을 발사하고 싶음
 public class PlayerGunFire : MonoBehaviour
 {
     [SerializeField] private ParticleSystem _hitEffectPrefab;
-    [SerializeField] private TMP_Text _bulletCountUI;
 
     [SerializeField] private float _range = 100f;
     [SerializeField] private float _damage = 10f;
@@ -19,11 +17,14 @@ public class PlayerGunFire : MonoBehaviour
     private Coroutine _reloadCoroutine;
     private Animator _animator;
 
+    public event System.Action<int, int> OnBulletCountChanged;
+    public int RemainingBulletAmmo => _remainingBulletAmmo;
+    public int BulletAmmo => _bulletAmmo;
+
     private void Awake()
     {
         _remainingBulletAmmo = _bulletAmmo;
         _animator = GetComponentInChildren<Animator>();
-        ShowBulletCount();
     }
     private void Update()
     {
@@ -55,7 +56,7 @@ public class PlayerGunFire : MonoBehaviour
         RaycastHit hitInfo = new RaycastHit();
 
         _remainingBulletAmmo--;
-        ShowBulletCount();
+        OnBulletCountChanged?.Invoke(_remainingBulletAmmo, _bulletAmmo);
 
         // 4. 레이를 발사하고, 만일 부딪힌 물체가 있다면 이펙트 표시하기
         bool isHit = Physics.Raycast(ray, out hitInfo, _range);
@@ -75,17 +76,12 @@ public class PlayerGunFire : MonoBehaviour
         }
     }
 
-    private void ShowBulletCount()
-    {
-        _bulletCountUI.text = $"{_remainingBulletAmmo} / {_bulletAmmo}";
-    }
-
     private IEnumerator Reloading_Coroutine()
     {
         yield return new WaitForSeconds(_reloadTime);
         _remainingBulletAmmo = _bulletAmmo;
         _reloadCoroutine = null;
-        ShowBulletCount();
+        OnBulletCountChanged?.Invoke(_remainingBulletAmmo, _bulletAmmo);
     }
 
     private void CancelReload()

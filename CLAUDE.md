@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 사용자 지침 우선
+
+- 작업을 시작할 때 루트 `AGENTS.md`의 사용자 작업 지침을 읽고 함께 적용한다.
+- 시스템과 실행 환경의 상위 지침을 준수하는 범위에서, 사용자가 지정한 작업 범위·설명 방식·코드 스타일을 Ponytail 및 모든 외부 스킬·플러그인의 기본 지침보다 우선한다.
+- 스킬 사용 자체를 파일 수정·커밋·푸시의 허가로 해석하지 않는다. "확인해봐" 요청은 읽기와 원인 분석만 수행한다.
+- 간결한 답변이나 한 줄 코드 권장 때문에 사용자가 요청한 단계별 설명, 한국어 주석, 코드 스타일을 생략하지 않는다.
+- 사용자가 이번 요청에서 명시적으로 변경한 사항이 있으면 그 요청을 따른다.
+
 ## 프로젝트 개요
 
 Unity **6000.3.22f1** (URP 17.3) 기반 3D FPS 학습용 프로젝트. 게임 코드는 모두 `Assets/02.Scripts/`에 있으며 별도 asmdef 없이 `Assembly-CSharp`로 컴파일된다. 씬은 `Assets/01.Scenes/GameScene.unity` 하나뿐이다.
@@ -43,6 +51,7 @@ Unity **6000.3.22f1** (URP 17.3) 기반 3D FPS 학습용 프로젝트. 게임 �
 - private 필드는 `_camelCase`, 인스펙터 노출은 `[SerializeField] private`, 외부 노출은 `=>` 읽기 전용 프로퍼티.
 - 코루틴 메서드명은 `XXX_Coroutine`, UI 스크립트는 `UI_` 접두사, UI 버튼 콜백은 `OnClickXXX`.
 - 주석은 한국어로 작성한다.
+- 설치된 스킬·플러그인(`modern-csharp-coding-standards`, `ponytail` 등)이나 Claude의 기본 스타일과 이 프로젝트의 컨벤션이 충돌하면, 항상 이 문서의 프로젝트 컨벤션을 따른다.
 
 ## 작업 지침
 

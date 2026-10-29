@@ -1,5 +1,5 @@
+using System.Dynamic;
 using UnityEngine;
-using TMPro;
 using Redcode.Pools;
 using UnityEngine.InputSystem.Layouts;
 
@@ -10,7 +10,6 @@ public class PlayerBombFire : MonoBehaviour
     [SerializeField] private float _throwPower = 15f;
     [SerializeField] private float _maxThrowPower = 30f;
     [SerializeField] private int _bombCount = 10;
-    [SerializeField] private TMP_Text _bombCountUI;
 
     [Min(0.01f)][SerializeField] private float _maxChargeTime = 2f;
 
@@ -32,13 +31,16 @@ public class PlayerBombFire : MonoBehaviour
     private IPool<Bomb> _bombPool;
     private Animator _animator;
     private int _throwLayerIndex;
+    private Player _player;
 
     private float HoldNormalizedTime => (float)_holdFrame / _clipLastFrame;
     private float ReleaseNormalizedTime => (float)_releaseFrame / _clipLastFrame;
 
+    public int BombCount => _bombCount;
+    public event System.Action<int> OnBombCountChanged;
+
     private void Awake()
     {
-        ShowBombCount();
         _animator = GetComponentInChildren<Animator>();
         _throwLayerIndex = _animator.GetLayerIndex(ThrowLayerName);
     }
@@ -46,13 +48,14 @@ public class PlayerBombFire : MonoBehaviour
     private void Start()
     {
         _bombPool = _poolManager.GetPool<Bomb>("Bomb");
+        _player = GetComponent<Player>();
     }
 
     private void Update()
     {
         if (GameManager.Instance.State != GameState.Playing) return;
         // 이전 투척 동작(발사 대기, 후속 동작)이 끝나기 전에는 새로 시작하지 않는다
-        if (Input.GetButtonDown("Fire2") && _bombCount > 0 && !_isWaitingRelease && !IsPlayingThrowState(out _))
+        if (Input.GetButtonDown("Fire2") && _bombCount > 0 && !_isWaitingRelease && !IsPlayingThrowState(out _) && _player.WeaponMode == WeaponMode.Normal)
         {
             StartCharge();
         }
@@ -145,11 +148,6 @@ public class PlayerBombFire : MonoBehaviour
 
         bomb.Launch(_bombPool, _firePosition.position, Camera.main.transform.forward, power);
         _bombCount--;
-        ShowBombCount();
-    }
-
-    private void ShowBombCount()
-    {
-        _bombCountUI.text = $"{_bombCount}";
+        OnBombCountChanged?.Invoke(_bombCount);
     }
 }
