@@ -91,7 +91,6 @@ public class PlayerGunFire : MonoBehaviour
 
         if (isHit)
         {
-            Debug.Log($"{hitInfo.collider.name}이 총알을 맞았다. 데미지: {_damage}");
             ParticleSystem effect = Instantiate(_hitEffectPrefab);
             effect.transform.position = hitInfo.point; // 맞은 자리
             effect.transform.forward = hitInfo.normal; // 수직 위치로 회전
