@@ -1,6 +1,11 @@
 using UnityEngine;
 using System;
 
+public enum MeleeHitMode
+{
+    Collider,
+    Fan
+}
 public class Player : MonoBehaviour, IDamageable
 {
     [Header("스탯")]
@@ -44,6 +49,11 @@ public class Player : MonoBehaviour, IDamageable
         {
             _weaponMode = WeaponMode.Sniper;
             OnModeChanged?.Invoke(WeaponMode.Sniper);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            _weaponMode = WeaponMode.Melee;
+            OnModeChanged?.Invoke(WeaponMode.Melee);
         }
     }
 
