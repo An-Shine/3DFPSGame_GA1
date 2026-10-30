@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerMeleeAttack : MonoBehaviour
 {
     [SerializeField] private GameObject _katana;
+    [SerializeField] private TrailRenderer[] _fireTrails;
 
     private Player _player;
     private Animator _animator;
@@ -23,6 +24,12 @@ public class PlayerMeleeAttack : MonoBehaviour
         // 오브젝트 레이어(LayerMask)가 아니라 Animator 컨트롤러의 레이어 인덱스를 구해야 한다.
         _meleeLayerIndex = _animator.GetLayerIndex("Melee");
         _katanaCollider = _katana.GetComponentInChildren<Collider>(true);
+        _fireTrails = _katana.GetComponentsInChildren<TrailRenderer>(true);
+        foreach (var trail in _fireTrails)
+        {
+            trail.emitting = false;
+            trail.Clear();
+        }
     }
 
     private void OnEnable()
@@ -33,6 +40,8 @@ public class PlayerMeleeAttack : MonoBehaviour
     private void OnDisable()
     {
         _player.OnModeChanged -= RefreshKatana;
+        ClearFireTrails();
+        _katanaCollider.enabled = false;
     }
 
     private void Start()
@@ -42,6 +51,8 @@ public class PlayerMeleeAttack : MonoBehaviour
 
     public void ActivateCollider()
     {
+        if (_player.WeaponMode != WeaponMode.Melee) return;
+        StartFireTrail();
         if (_hitMode != MeleeHitMode.Collider) return;
         Debug.Log("카타나 콜라이더 활성화");
         _katanaCollider.enabled = true;
@@ -74,6 +85,12 @@ public class PlayerMeleeAttack : MonoBehaviour
     // 무기 모드가 바뀌었다는 알림이 오면 불리는 함수(콜백). 카타나는 근접 모드에서만 보인다.
     private void RefreshKatana(WeaponMode mode)
     {
+        bool isMelee = mode == WeaponMode.Melee;
+        ClearFireTrails();
+        if (!isMelee)
+        {
+            _katanaCollider.enabled = false;
+        }
         _katana.SetActive(mode == WeaponMode.Melee);
     }
 
@@ -111,6 +128,32 @@ public class PlayerMeleeAttack : MonoBehaviour
                 damageInfo.HitNormal = (origin - hitPoint).normalized;
                 damageable.TakeDamage(damageInfo);
             }
+        }
+    }
+
+    private void StartFireTrail()
+    {
+        foreach (var trail in _fireTrails)
+        {
+            trail.Clear();
+            trail.emitting = true;
+        }
+    }
+
+    public void StopFireTrail()
+    {
+        foreach (var trail in _fireTrails)
+        {
+            trail.emitting = false;
+        }
+    }
+
+    private void ClearFireTrails()
+    {
+        foreach (var trail in _fireTrails)
+        {
+            trail.emitting = false;
+            trail.Clear();
         }
     }
 }
