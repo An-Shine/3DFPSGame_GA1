@@ -14,7 +14,7 @@ public static class SceneCullingSetup
     private const float PropCullScreenHeight = 0.04f;
 
     private const float MainCameraFar = 250f; // 맵 대각선 약 212m + 여유
-    private const float MinimapCameraFar = 20f; // 플레이어 머리 위 8m에서 지면까지 + 여유
+    private const float MinimapCameraFar = 40f; // 미니맵 카메라 높이(_height 30m)에서 지면까지 + 여유. 높이를 바꾸면 함께 조정할 것
 
     // 소품 접두사를 먼저 검사한다 (Concrete_fence_v1_column, Oil_tank_v2가 구조물 접두사에 걸리지 않게)
     private static readonly string[] PropPrefixes =
