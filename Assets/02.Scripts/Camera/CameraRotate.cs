@@ -1,16 +1,37 @@
 using UnityEngine;
 
 // 역할 : 마우스를 움직이면 카메라를 그 방향으로 회전하고 싶음
+[DefaultExecutionOrder(-20)]
 public class CameraRotate : MonoBehaviour
 {
     [SerializeField] private float _rotationSpeed = 200f;
 
+    [Header("3인칭과 백뷰의 상하 회전 제한")]
+    [SerializeField] private float _followMinY = -25f;
+    [SerializeField] private float _followMaxY = 60f;
+
     private float _accumulationX = 0f; //  좌우 회전 각도
     private float _accumulationY = 0f; //  위아래 회전 각도
+    private CameraFollow _cameraFollow;
+
+    private void Awake()
+    {
+        _cameraFollow = GetComponent<CameraFollow>();
+    }
 
     private void Update()
     {
-        if (GameManager.Instance.State != GameState.Playing) return;
+        if (!CursorManager.Instance.CanAim)
+        {
+            return;
+        }
+
+        if (_cameraFollow.Mode == CameraMode.QuarterView)
+        {
+            // 고정 카메라는 돌리지 않고, 다른 시점으로 돌아갈 때의 좌우 방향만 맞춘다.
+            _accumulationX = Quaternion.LookRotation(_cameraFollow.GetAimRay().direction).eulerAngles.y;
+            return;
+        }
         // 1. 마우스 입력을 받음
         float mouseX = Input.GetAxis("Mouse X");
         float mouseY = Input.GetAxis("Mouse Y");
@@ -21,7 +42,15 @@ public class CameraRotate : MonoBehaviour
         _accumulationY += -mouseY * _rotationSpeed * Time.deltaTime;
 
         // 3. 누적하기 전에 내 변수에서 먼저 -90 ~ 90 도로 제한
-        _accumulationY = Mathf.Clamp(_accumulationY, -90f, 90f);
+        if (_cameraFollow.Mode == CameraMode.FirstPerson)
+        {
+            _accumulationY = Mathf.Clamp(_accumulationY, -90f, 90f);
+        }
+        else
+        {
+            // 현재 눈높이와 백뷰 거리에서 카메라가 바닥 아래로 내려가지 않도록 제한한다.
+            _accumulationY = Mathf.Clamp(_accumulationY, _followMinY, _followMaxY);
+        }
 
         // 4. 누적한 회전값을 카메라에 적용
         transform.eulerAngles = new Vector3(_accumulationY, _accumulationX, 0);

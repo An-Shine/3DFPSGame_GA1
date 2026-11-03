@@ -8,10 +8,12 @@ public class PlayerWeaponAim : MonoBehaviour
     [SerializeField] private Transform[] _weapons;
 
     private Quaternion[] _rotationOffsets;
+    private CameraFollow _cameraFollow;
 
     private void Awake()
     {
         _rotationOffsets = new Quaternion[_weapons.Length];
+        _cameraFollow = _aimCamera.GetComponent<CameraFollow>();
 
         for (int i = 0; i < _weapons.Length; i++)
         {
@@ -23,7 +25,10 @@ public class PlayerWeaponAim : MonoBehaviour
     private void LateUpdate()
     {
         // 카메라의 상하 각도와 플레이어의 좌우 방향을 조합한다.
-        float pitch = Mathf.DeltaAngle(0f, _aimCamera.eulerAngles.x);
+        // 쿼터뷰의 카메라 각도 대신 실제 사격 방향인 플레이어 정면을 따른다.
+        float pitch = _cameraFollow.Mode == CameraMode.QuarterView
+            ? 0f
+            : Mathf.DeltaAngle(0f, _aimCamera.eulerAngles.x);
         Quaternion aimRotation = Quaternion.Euler(pitch, transform.eulerAngles.y, 0f);
 
         for (int i = 0; i < _weapons.Length; i++)

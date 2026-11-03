@@ -7,10 +7,14 @@ public class PlayerZoom : MonoBehaviour
     [SerializeField] private float _sniperPov = 15f;
 
     private Player _player;
+    private Camera _camera;
+    private CameraFollow _cameraFollow;
 
     private void Awake()
     {
         _player = GetComponent<Player>();
+        _camera = Camera.main;
+        _cameraFollow = _camera.GetComponent<CameraFollow>();
     }
     private void Update()
     {
@@ -19,8 +23,9 @@ public class PlayerZoom : MonoBehaviour
             return;
         }
 
-        bool isZooming = _player.WeaponMode == WeaponMode.Sniper && Input.GetMouseButton(1);
+        bool isZooming = CursorManager.Instance.CanAim && _cameraFollow.Mode == CameraMode.FirstPerson &&
+                         _player.WeaponMode == WeaponMode.Sniper && Input.GetMouseButton(1);
         _sniperZoom.SetActive(isZooming);
-        Camera.main.fieldOfView = isZooming ? _sniperPov : _normalPov;
+        _camera.fieldOfView = isZooming ? _sniperPov : _normalPov;
     }
 }

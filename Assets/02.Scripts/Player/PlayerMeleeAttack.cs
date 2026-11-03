@@ -69,7 +69,7 @@ public class PlayerMeleeAttack : MonoBehaviour
         if (GameManager.Instance.State != GameState.Playing) return;
 
         // Fire2를 누르면 Slash 트리거를 켠다. Empty → Attack1(slash1) → Empty 한 번만 재생된다.
-        if (Input.GetButtonDown("Fire2") && _player.WeaponMode == WeaponMode.Melee && IsResting())
+        if (CursorManager.Instance.CanAim && Input.GetButtonDown("Fire2") && _player.WeaponMode == WeaponMode.Melee && IsResting())
         {
             DeactivateCollider();
             _animator.SetTrigger("Slash");

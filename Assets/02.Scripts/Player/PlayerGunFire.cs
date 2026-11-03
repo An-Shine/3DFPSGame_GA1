@@ -26,6 +26,8 @@ public class PlayerGunFire : MonoBehaviour
     private Animator _animator;
     private float _laserTimer;
     private Vector3 _laserEndPoint;
+    private CameraFollow _cameraFollow;
+    private int _hitMask;
 
     public event System.Action<int, int> OnBulletCountChanged;
     public int RemainingBulletAmmo => _remainingBulletAmmo;
@@ -35,6 +37,9 @@ public class PlayerGunFire : MonoBehaviour
     {
         _remainingBulletAmmo = _bulletAmmo;
         _animator = GetComponentInChildren<Animator>();
+        _cameraFollow = Camera.main.GetComponent<CameraFollow>();
+        // 기존 Ignore Raycast 제외를 유지하고, 3인칭에서 자기 몸에 맞지 않게 한다.
+        _hitMask = Physics.DefaultRaycastLayers & ~LayerMask.GetMask("Player");
         foreach (LineRenderer line in _laserLines)
         {
             line.positionCount = 2;
@@ -51,11 +56,11 @@ public class PlayerGunFire : MonoBehaviour
             return;
         }
         _fireTimer -= Time.deltaTime;
-        bool isMouseVisible = Cursor.visible;
-        bool isFiring = !isMouseVisible && Input.GetButton("Fire1") && _remainingBulletAmmo > 0;
+        bool canAim = CursorManager.Instance.CanAim;
+        bool isFiring = canAim && Input.GetButton("Fire1") && _remainingBulletAmmo > 0;
         _animator.SetBool("Fire", isFiring);
         // 1. 마우스 왼쪽버튼 입력받기
-        if (!isMouseVisible && Input.GetButton("Fire1") && _fireTimer <= 0f && _remainingBulletAmmo > 0)
+        if (isFiring && _fireTimer <= 0f)
         {
             CancelReload();
             _fireTimer = _fireInterval;
@@ -71,8 +76,7 @@ public class PlayerGunFire : MonoBehaviour
     {
         StartCoroutine(MuzzleFlash_Coroutine());
         // 2. 레이(광선) 생성, 발사될 위치와 진행방향 설정하기
-        Transform cameraTransform = Camera.main.transform;
-        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+        Ray ray = _cameraFollow.GetAimRay();
 
         // 3. 레이가 부딪힌 대상의 정보를 저장하기
         RaycastHit hitInfo = new RaycastHit();
@@ -81,7 +85,7 @@ public class PlayerGunFire : MonoBehaviour
         OnBulletCountChanged?.Invoke(_remainingBulletAmmo, _bulletAmmo);
 
         // 4. 레이를 발사하고, 만일 부딪힌 물체가 있다면 이펙트 표시하기
-        bool isHit = Physics.Raycast(ray, out hitInfo, _range);
+        bool isHit = Physics.Raycast(ray, out hitInfo, _range, _hitMask);
         // 명중하면 충돌 지점까지, 빗나가면 최대 사거리까지 표시한다.
         // 명중 판정은 한 번만 하고, 두 총구의 레이저가 같은 지점에 모이게 한다.
         _laserEndPoint = isHit ? hitInfo.point : ray.GetPoint(_range);

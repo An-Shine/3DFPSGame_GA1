@@ -32,6 +32,7 @@ public class PlayerBombFire : MonoBehaviour
     private Animator _animator;
     private int _throwLayerIndex;
     private Player _player;
+    private CameraFollow _cameraFollow;
 
     private float HoldNormalizedTime => (float)_holdFrame / _clipLastFrame;
     private float ReleaseNormalizedTime => (float)_releaseFrame / _clipLastFrame;
@@ -43,6 +44,7 @@ public class PlayerBombFire : MonoBehaviour
     {
         _animator = GetComponentInChildren<Animator>();
         _throwLayerIndex = _animator.GetLayerIndex(ThrowLayerName);
+        _cameraFollow = Camera.main.GetComponent<CameraFollow>();
     }
 
     private void Start()
@@ -55,7 +57,7 @@ public class PlayerBombFire : MonoBehaviour
     {
         if (GameManager.Instance.State != GameState.Playing) return;
         // 이전 투척 동작(발사 대기, 후속 동작)이 끝나기 전에는 새로 시작하지 않는다
-        if (Input.GetButtonDown("Fire2") && _bombCount > 0 && !_isWaitingRelease && !IsPlayingThrowState(out _) && _player.WeaponMode == WeaponMode.Normal)
+        if (CursorManager.Instance.CanAim && Input.GetButtonDown("Fire2") && _bombCount > 0 && !_isWaitingRelease && !IsPlayingThrowState(out _) && _player.WeaponMode == WeaponMode.Normal)
         {
             StartCharge();
         }
@@ -146,7 +148,7 @@ public class PlayerBombFire : MonoBehaviour
             return;
         }
 
-        bomb.Launch(_bombPool, _firePosition.position, Camera.main.transform.forward, power);
+        bomb.Launch(_bombPool, _firePosition.position, _cameraFollow.GetAimRay().direction, power);
         _bombCount--;
         OnBombCountChanged?.Invoke(_bombCount);
     }
