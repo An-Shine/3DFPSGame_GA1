@@ -12,7 +12,7 @@ public class ZombieAttackState : IZombieState
 
     public void EnterState()
     {
-        _timer = 0f;
+        _timer = _zombie.AttackInterval;
         _zombie.StopMoving();
         _zombie.SetAnimTrigger("MoveToAttack");
     }

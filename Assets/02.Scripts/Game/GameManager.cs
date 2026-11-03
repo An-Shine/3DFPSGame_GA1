@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using TMPro;
 using UnityEngine.InputSystem.Layouts;
+using UnityEngine.SceneManagement;
 
 public enum GameState
 {
@@ -11,27 +12,15 @@ public enum GameState
     GameOver
 }
 
-public class GameManager : MonoBehaviour
+public class GameManager : SingletonBehaviour<GameManager>
 {
-    private static GameManager _instance = null;
-    public static GameManager Instance => _instance;
-
     private GameState _state = GameState.Ready;
     public GameState State => _state;
 
     [SerializeField] private TextMeshProUGUI _stateText;
     [SerializeField] private Animator _playerAnimator;
     [SerializeField] private GameObject _optionPopup;
-
-    private void Awake()
-    {
-        if (_instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        _instance = this;
-    }
+    [SerializeField] private GameObject _gameOverPopup;
 
     private void Start()
     {
@@ -44,19 +33,8 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (_state == GameState.Playing)
-            {
-                _state = GameState.Pause;
-                Time.timeScale = 0;
-                _optionPopup.SetActive(true);
-                CursorManager.Instance.UnlockCursor();
-            }
-            else if (_state == GameState.Pause)
-            {
-                _state = GameState.Playing;
-                Time.timeScale = 1;
-                _optionPopup.SetActive(false);
-                CursorManager.Instance.LockCursor();
-            }
+                Pause();
+            else if (_state == GameState.Pause) Resume();
         }
     }
 
@@ -74,11 +52,40 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         _state = GameState.GameOver;
-
-        _stateText.gameObject.SetActive(true);
-        _stateText.text = "게임오버";
-        _stateText.color = Color.red;
-
+        _stateText.gameObject.SetActive(false);
+        CursorManager.Instance.UnlockCursor();
+        _gameOverPopup.SetActive(true);
         _playerAnimator.SetFloat("MoveMotion", 0f);
+    }
+
+    public void Pause()
+    {
+        _state = GameState.Pause;
+        Time.timeScale = 0;
+        _optionPopup.SetActive(true);
+        CursorManager.Instance.UnlockCursor();
+    }
+
+    public void Resume()
+    {
+        _state = GameState.Playing;
+        Time.timeScale = 1;
+        _optionPopup.SetActive(false);
+        CursorManager.Instance.LockCursor();
+    }
+
+    public void Restart()
+    {
+        Time.timeScale = 1;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void Quit()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 }
