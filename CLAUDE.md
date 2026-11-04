@@ -34,8 +34,8 @@ Unity **6000.3.22f1** (URP 17.3) 기반 3D FPS 학습용 프로젝트. 게임 �
 기능별로 컴포넌트가 분리돼 있다: `PlayerMove`(CharacterController 이동·점프·스프린트·스태미나), `PlayerRotate`, `PlayerGunFire`(카메라 정면 레이캐스트 히트스캔, 탄창/재장전 코루틴), `PlayerBombFire`(Fire2 차지 투척), `Player`(체력·피격). UI(`UI_PlayerStats`, `UI_HitEffect`)는 이 컴포넌트들의 public 프로퍼티를 읽어 표시한다.
 
 ### 좀비 AI
-`Monster/Zombie.cs`는 `switch` 기반 FSM(`Idle`/`Patrol`/`Trace`/`Comeback`/`Attack`/`Hit`/`Death`)이다. 각 상태 메서드는 `_moveDirection`만 설정하고, 실제 이동은 `Update()` 끝에서 `CharacterController.SimpleMove`로 한 번만 처리한다. 상태 전환은 반드시 `ChangeState()`를 거쳐야 타이머가 초기화된다. NavMesh 패키지는 설치돼 있지만 사용하지 않고, 순찰 경로는 `CapsuleCast`/`Raycast`로 직접 검사한다.
-
+`Monster/Zombie.cs`는 상태 객체 기반 FSM(`Idle`/`Patrol`/`Trace`/`Comeback`/`Attack`/`Hit`/`Death`)이다. 상태별 로직은 `Monster/States/`의 `IZombieState`(`EnterState`/`UpdateState`/`ExitState`) 구현체(`ZombieIdleState` 등)에 있고, `Zombie`는 `Awake`에서 상태 객체를 한 번 만들어 재사용하며 `Update()`에서 현재 상태의 `UpdateState()`만 호출한다. 상태 전환은 반드시 `ChangeState()`를 거쳐야 이전 상태의 `ExitState`와 이동 정지가 처리된다.
+이동과 길찾기는 `NavMeshAgent`가 담당한다. 상태 클래스는 `Zombie.MoveTo()`/`StopMoving()`/`HasReachedDestination()`을 통해서만 Agent를 다루고, 순찰 지점은 `NavMesh.SamplePosition`과 `CalculatePath`로 도달 가능 여부를 검사해 고른다. 좀비는 `ZombieSpawner`가 `PoolManager` 풀에서 꺼내 `Zombie.Spawn()`으로 NavMesh 위에 배치하며(실패 시 풀에 반환), 재사용 때마다 `ResetForSpawn()`이 상태·체력·애니메이터를 초기화한다. 스폰 높이는 NavMesh 표면 + `NavMeshAgent.baseOffset`이므로 프리팹의 Base Offset은 NavMesh와 바닥 사이 간격에 맞춰야 한다.
 ### 입력 / 커서
 입력은 **구 Input Manager**(`Input.GetAxis`, `Input.GetButton("Fire1")` 등)를 사용한다. `InputSystem_Actions.inputactions`는 템플릿 기본 파일일 뿐 코드에서 쓰이지 않는다.
 `CursorManager`는 왼쪽 Alt를 누르는 동안 커서를 해제하고, `PlayerGunFire`는 `Cursor.visible`이 true이면 발사하지 않는다(미니맵 UI 버튼 클릭 등을 위해).

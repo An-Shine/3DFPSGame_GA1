@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -75,7 +76,7 @@ public class UI_Login : MonoBehaviour
 
         if (_repository.CheckPassword(id, password))
         {
-            SceneManager.LoadScene(_gameSceneName);
+            SceneLoader.Load("GameScene");
         }
         else
         {
